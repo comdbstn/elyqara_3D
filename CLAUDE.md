@@ -206,6 +206,7 @@ public class AttackProperty {
 | `com.unity.inputsystem` | 1.18.0 | New Input System. legacy `Input.GetAxis` 대체 |
 | `com.unity.ai.navigation` | 2.0.9 | NavMesh 빌더 — 적 AI 경로 |
 | `com.unity.multiplayer.center` | 1.0.1 | NGO 셋업 위저드. 안 써도 무방 |
+| `com.unity.multiplayer.playmode` | 2.0.2 | **MPPM** — Editor 안에서 Player 1 + Player 2 동시 띄움 (가상 인스턴스). 단계 1 검증 도구. 단계 4 멀티 동기화 검증에도 핵심 |
 | `com.unity.test-framework` | 1.6.0 | Unit/Integration 테스트. `run_tests` MCP 도구 의존 |
 | `com.unity.timeline` | 1.8.10 | Timeline — 컷씬용. 백로그 (1차 안 씀) |
 | `com.unity.ugui` | 2.0.0 | uGUI — HUD/네임플레이트는 uGUI 권장 (UI Toolkit 보다 월드스페이스 안정적) |
@@ -380,3 +381,10 @@ public class AttackProperty {
 - **마일스톤**: 11단계 코어 검증 (옛 M1~M10 폐기)
 - **시간 단위 X**: 순서로만 표기
 - **절대 원칙**: 9 원칙 + SOP (옛 코드 우선 / 단일 매니저 / 인터페이스 우선 / 데이터 주도 / 환상 금지)
+
+### 2026-05-01 단계 1 통과 + 권한 모델 변경
+- **단계 1 ✅** "둘이 같이 움직임" MPPM 검증 통과. 사용자 직인 "ㅈㄴ만족함"
+- **GitHub 박힘**: `https://github.com/comdbstn/elyqara_3D` (main, push 자동)
+- **권한 게이트 제거**: `.claude/settings.json` 의 모든 ask → allow. deny 는 후처리 불가능한 destructive 만 (rm -rf, git reset --hard, push --force, branch -D 등). 사용자 결정 — review 능력 부재로 ask 마찰 무의미. **Claude self-discipline 가중** (9 원칙 + SOP 자동 self-check)
+- **Server 버튼 유지 결정**: NetworkBootstrap 의 Server 버튼은 의도적 유지. 다음 세션이 다시 빼라고 제안 X. 단계 후반 로비 UI 만들면 자연 제거됨
+- **HANDOFF.md 삭제**: 단계 1 직전 상태 인계 문서. 쓰임 다 함
