@@ -139,8 +139,8 @@ public class AttackProperty {
 | 1 | NGO + Steamworks, Capsule 2명 동기화 | "둘이 같이 움직임" | ✅ |
 | 2 | 검방패 캐릭터 완성 → **슬롯/자원 그릇** (사용자 결정으로 동작 구현 미룸) | "캐릭터 슬롯/자원 그릇 완성" | ✅ |
 | 3 | 더미 적 1종 + 한 마리 집중 AI | "혼자 적 한 마리 잡는 게 재밌음" | ✅ |
-| 4 | 2~4명 멀티 동기화 | "같이 잡는 게 더 재밌음" | 🟢 다음 |
-| 5 | 좁은 던전 1방 (단일) | "좁은 공간 포지셔닝 의미 있음" | |
+| 4 | 2~4명 멀티 동기화 + 적 AI 표준 패턴 갈아엎힘 | "같이 잡는 게 더 재밌음" | ✅ |
+| 5 | 좁은 던전 1방 (단일) | "좁은 공간 포지셔닝 의미 있음" | 🟢 다음 |
 | 6 | 던전 확장 (방+통로, **C 하이브리드** Elyqara 그리드 3D 포팅) | "한 런 길이 감" | |
 | 7 | 빌드 시스템 (Elyqara 그리드 인벤토리 차용) | "적 잡으면 뭔가 떨어짐" | |
 | 8 | 자유 픽업 드랍 (그냥 바닥) | "협동의 본질이 굴러감" | |
@@ -190,10 +190,11 @@ public class AttackProperty {
 
 > 새 시스템 추가될 때마다 한 줄 추가. 새 세션 클로드가 빠르게 파악 가능하도록.
 
-### 현재 상태 (2026-05-01)
+### 현재 상태 (2026-05-02)
 - **단계 1 ✅** "둘이 같이 움직임"
 - **단계 2 ✅** "캐릭터 슬롯/자원 그릇 완성" — MPPM 두 캡슐 + 어깨 너머 카메라 + owner 분리 통과
 - **단계 3 ✅** "혼자 적 한 마리 잡는 게 재밌음" — Wisp 좌클릭 4회 사망 + Souls 톤 카메라 검증 통과. 사용자 직인 *"저것까지 제대로 작동하네"*
+- **단계 4 ✅** "같이 잡는 게 더 재밌음" — 멀티 동기화 + 적 AI Souls-like 표준 패턴 갈아엎힘 (6-state FSM / 4-phase attack / stopping distance). 사용자 직인 *"4단계 끝났어"* + *"인터넷 찾아보고 코드 수정하니까 뭔가 완성된 코드로 가져와서 훨신 수정하기도 편하고 퀄리티도 좋네"*
 - **코드**: `Assets/_Project/Scripts/{Networking,Player,Characters}/` (asmdef 3개 분리)
 - **프리팹**: `Player.prefab` (root: Capsule + Rigidbody + NetworkObject + NetworkTransform + NetworkRigidbody + PlayerMovement + PlayerInput + PlayerCharacterBinder + PlayerResources + PlayerCamera) + 자식 `vCam` (CinemachineCamera + ThirdPersonFollow)
 - **씬**: `SampleScene` 에 `[Network]` (NetworkManager + UnityTransport + NetworkBootstrap) + `Ground` Plane + Main Camera 에 CinemachineBrain
@@ -247,7 +248,7 @@ public class AttackProperty {
 - **네트워킹** ✅ 단계 1+2: `Elyqara.Networking` asmdef. `NetworkBootstrap` (Host/Client/Server OnGUI + UnityTransport 자동 link + PlayMode Stop 시 강제 Shutdown hook). 단계 2부터 PlayerMovement 는 Player asmdef 로 이동 — Networking 은 진짜 인프라(트랜스포트/부트스트랩)만. (단계 1 후) SteamLobbyService 추가 예정
 - **플레이어** ✅ 단계 2: `Elyqara.Player` asmdef. `PlayerInput` (Move/Look + 4슬롯 InputAction, Owner-only enable). `PlayerMovement : NetworkBehaviour` (IsOwner 입력 → ServerRpc → 호스트 Rigidbody.linearVelocity → NetworkTransform 동기화). `PlayerResources : NetworkBehaviour` (NetworkVariable<float> Health/Stamina, 호스트 권위, regen). `PlayerCamera : NetworkBehaviour` (vCam SetParent(null) 분리 + Priority.Value 명시). `PlayerCharacterBinder` (CharacterData ref 한 줄 컴포넌트)
 - **캐릭터** ✅ 단계 2: `Elyqara.Characters` asmdef. `CharacterData : ScriptableObject` (HP/Stamina + 4 슬롯). 새 캐릭 추가 = SO 한 장 + Player.prefab 의 PlayerCharacterBinder.character 한 줄 변경. 첫 캐릭 = Kiyan.asset
-- **적** ✅ 단계 3: `Elyqara.Enemies` asmdef. `IEnemy` + `EnemyData : ScriptableObject` (HP/속도/어그로/공격 데이터) + `EnemyController : NetworkBehaviour` FSM 3상태 (Idle/Chase/Attack with windup) + `EnemySpawner` (Host 시작 시 1마리 spawn). 새 적 추가 = SO 한 장 + prefab 한 장 + NetworkPrefabsList 자동 등록. 첫 적 = `Wisp.asset` (HP 120). 단계 4 멀티에서 다중 spawn 시 EnemyManager 로 승격
+- **적** ✅ 단계 3 + 🔄 단계 4 표준 패턴 갈아엎힘: `Elyqara.Enemies` asmdef. `IEnemy` + `EnemyData : ScriptableObject` (HP/속도/어그로/4-phase attack/stopping distance/콘 hitbox) + `EnemyController : NetworkBehaviour` **Souls-like 표준 FSM 6상태** (Idle/Chase/Anticipation/Active/Recovery/Dead). 룰: ① **Stopping distance** (Chase 중 chaseStopDistance 유지, 박치기 X) ② **4-phase attack** (windup/active/recovery/cooldown 분리, Recovery 동안 정지=telegraph 무게감+Player punish window) ③ **Transition() 단일 진입점** (`_state =` 직접 박는 곳 X) ④ **Update=로직 / FixedUpdate=물리 분리** ⑤ **Active phase OverlapSphere 콘 hitbox** (BasicMeleeSkill 과 동일 패턴). 모든 적 공통 베이스 — 새 적 = SO 한 장 + prefab 한 장. 첫 적 = `Wisp.asset` (HP 120, windup 0.5/active 0.1/recovery 0.6/cooldown 0.8 → 2초 cycle). `EnemySpawner` Host 시작 시 1마리
 - **스킬** ✅ 단계 3: `Elyqara.Skills` asmdef. `ISkill` + `SkillData : ScriptableObject, ISkill` (추상) + `BasicMeleeSkill` (구체 — 콘 hitbox 데미지) + `IDamageable` (Player/Enemy 둘 다 구현). 새 스킬 = SkillData 상속 SO 한 장. `PlayerSkillExecutor` 가 4슬롯 입력 → `SkillData.ActivateOnServer` 호출. 첫 스킬 = `BasicMelee.asset`
 - **아이템**: IItem + InventoryManager (Elyqara 그리드 차용 — 단계 7)
 - **던전**: GridMapGenerator → GridDungeonBuilder → GridRoomManager (Elyqara 패턴 — 단계 5/6)
@@ -412,6 +413,18 @@ public class AttackProperty {
 - **권한 게이트 제거**: `.claude/settings.json` 의 모든 ask → allow. deny 는 후처리 불가능한 destructive 만 (rm -rf, git reset --hard, push --force, branch -D 등). 사용자 결정 — review 능력 부재로 ask 마찰 무의미. **Claude self-discipline 가중** (9 원칙 + SOP 자동 self-check)
 - **Server 버튼 유지 결정**: NetworkBootstrap 의 Server 버튼은 의도적 유지. 다음 세션이 다시 빼라고 제안 X. 단계 후반 로비 UI 만들면 자연 제거됨
 - **HANDOFF.md 삭제**: 단계 1 직전 상태 인계 문서. 쓰임 다 함
+
+### 2026-05-02 단계 4 진행 — 적 AI 표준 패턴 갈아엎힘
+- **트리거**: 단계 4 검증 중 Wisp 가 첫 공격 후 두번째부터 Player 한테 *꼴아박기만* 함. Claude ad-hoc FSM 3상태 (Idle/Chase/Attack with single windup) 가 두번째 공격 막힌 원인을 코드만 읽고 짚지 못함
+- **사용자 직인** (진단 부족 지적): *"진짜 문제는 이 문제가 아니라 이런 간단한 문제를 너가 컨트롤 하지 못한다는거야. 너가 100% 이해하는 코드로 짜와. 다른 모든코드를 검토하면 이런 간단한 문제정도는 알수있어 너 그렇게 멍청하지않아."*
+- **결정**: WebSearch 로 Souls-like 표준 패턴 검색 → EnemyController 전체 갈아엎기. ad-hoc FSM 의 빈 곳 4개 진단:
+  1. **Recovery phase 부재** — windup → 데미지 → cooldown 동안 forward 박치기 (= "꼴아박는다" 의 원인)
+  2. **Stopping distance 부재** — Chase 중 매 프레임 forward velocity 박음 → capsule 충돌 jitter
+  3. **Update 에서 Rigidbody.linearVelocity 박음** — FixedUpdate 가 표준
+  4. **`_state =` 직접 박는 곳 4군데로 분산** — frame-by-frame 추적 불가
+- **새 베이스 (모든 적 공통)**: 6-state FSM (Idle/Chase/Anticipation/Active/Recovery/Dead) + Transition() 단일 진입점 + 4-phase attack + Stopping Distance + 콘 hitbox. *데이터 주도* — 새 적 = EnemyData SO + prefab 한 장
+- **사용자 직인** (통과 후): *"괜찮네. 이렇게 인터넷 찾아보니까 너도 만족스러운 코드가 나오지?"*
+- **★ 메타 학습**: 표준 패턴 = 검증된 사람들이 *풀 추적 가능하게 분리* 해놓은 구조 = *Claude 본인의 추적 가능성* 까지 향상. 외부 자료 = 임시방편 X, *정공*. SOP 단계 2 (외부 자료 검색) 를 *첫 코드 박기 전* 진짜로 박을 것. *임시 코드 → 검증 → 갈아엎기* 사이클 금지 — 시간/체력 + 사용자 신뢰 손상
 
 ### 2026-05-02 단계 3 통과 + 외부 자료 활용 원칙 박힘
 - **단계 3 ✅** "혼자 적 한 마리 잡는 게 재밌음" — Wisp 좌클릭 4회 사망 + Souls 톤 카메라 검증 통과

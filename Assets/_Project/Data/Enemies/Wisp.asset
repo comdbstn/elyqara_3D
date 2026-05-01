@@ -16,9 +16,13 @@ MonoBehaviour:
   maxHealth: 120
   moveSpeed: 3
   turnSpeedDegPerSec: 360
+  chaseStopDistance: 1.7
   aggroRadius: 8
   deaggroRadius: 14
   attackRange: 2
   attackDamage: 30
-  attackCooldown: 1.8
   attackWindup: 0.5
+  attackActive: 0.1
+  attackRecovery: 0.6
+  attackCooldown: 0.8
+  hitboxHalfAngleDeg: 60

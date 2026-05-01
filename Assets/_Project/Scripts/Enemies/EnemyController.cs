@@ -4,25 +4,36 @@ using Elyqara.Skills;
 
 namespace Elyqara.Enemies
 {
+    // 모든 적의 공통 베이스. 데이터 주도 (EnemyData SO).
+    //
+    // FSM: Idle → Chase → Anticipation → Active → Recovery → Chase (cooldown 후)
+    //
+    // 핵심 룰 (Souls-like 표준 — 모든 적 동일 적용):
+    //   - Stopping distance: Chase 중 chaseStopDistance 유지. forward 박치기 X
+    //   - 4-phase attack: Anticipation/Active/Recovery/Cooldown 분리. Recovery 동안 정지 (telegraph 무게감)
+    //   - Active hitbox: 진입 순간 콘 OverlapSphere 한 번 (BasicMeleeSkill 과 동일 패턴)
+    //   - 명시적 transition: Transition(AIState next) 한 곳에서만 _state 변경
+    //   - Update = 로직 / FixedUpdate = 물리 (Rigidbody.linearVelocity)
     [RequireComponent(typeof(Rigidbody))]
     public sealed class EnemyController : NetworkBehaviour, IEnemy, IDamageable
     {
         [SerializeField] private EnemyData data;
+        [SerializeField] private bool logStateTransitions = true;
 
         public EnemyData Data => data;
         public float CurrentHealth => _health.Value;
-        public bool IsAlive => _health.Value > 0f;
+        public bool IsAlive => _state != AIState.Dead && _health.Value > 0f;
 
         private readonly NetworkVariable<float> _health = new(
             writePerm: NetworkVariableWritePermission.Server);
 
-        private Rigidbody _rigidbody;
-        private enum State { Idle, Chase, Attack }
-        private State _state = State.Idle;
+        private enum AIState { Idle, Chase, Anticipation, Active, Recovery, Dead }
+        private AIState _state = AIState.Idle;
         private Transform _target;
-        private float _attackCooldownLeft;
-        private float _windupLeft;
-        private bool _windupPending;
+        private float _phaseTimer;     // 현재 phase 잔여 시간
+        private float _cooldownLeft;   // Recovery 끝 후 다음 Anticipation 까지 wait
+
+        private Rigidbody _rigidbody;
 
         private void Awake()
         {
@@ -31,45 +42,57 @@ namespace Elyqara.Enemies
 
         public override void OnNetworkSpawn()
         {
+            _health.OnValueChanged += OnHealthChanged;
             if (!IsServer) return;
             if (data != null) _health.Value = data.maxHealth;
         }
 
-        public void ApplyDamageServer(float amount)
+        public override void OnNetworkDespawn()
         {
-            if (!IsServer || !IsAlive) return;
-            _health.Value = Mathf.Max(0f, _health.Value - amount);
-            if (_health.Value <= 0f) DieServer();
+            _health.OnValueChanged -= OnHealthChanged;
         }
 
-        private void DieServer()
+        private void OnHealthChanged(float prev, float now)
         {
-            // 단계 7 드랍 hook 자리 — 1차엔 Despawn 만
+            string side = IsServer ? "Host" : "Client";
+            Debug.Log($"[Wisp HP] {side}: {prev:F0} -> {now:F0}");
+        }
+
+        public void ApplyDamageServer(float amount)
+        {
+            if (!IsServer || _state == AIState.Dead) return;
+            _health.Value = Mathf.Max(0f, _health.Value - amount);
+            if (_health.Value <= 0f) Die();
+        }
+
+        private void Die()
+        {
+            Transition(AIState.Dead);
             if (NetworkObject != null && NetworkObject.IsSpawned)
                 NetworkObject.Despawn(true);
         }
 
         private void Update()
         {
-            if (!IsServer || data == null || !IsAlive) return;
+            if (!IsServer || data == null || _state == AIState.Dead) return;
 
-            if (_attackCooldownLeft > 0f) _attackCooldownLeft -= Time.deltaTime;
+            if (_cooldownLeft > 0f) _cooldownLeft -= Time.deltaTime;
 
-            UpdateTargetAcquisition();
-
-            switch (_state)
-            {
-                case State.Idle: TickIdle(); break;
-                case State.Chase: TickChase(); break;
-                case State.Attack: TickAttack(); break;
-            }
+            AcquireTarget();
+            TickState();
         }
 
-        private void UpdateTargetAcquisition()
+        private void FixedUpdate()
         {
-            // 가장 가까운 player 어그로 (1차 단순 룰)
+            if (!IsServer || _state == AIState.Dead) return;
+            ApplyMovement();
+        }
+
+        // ==== Target ====
+        private void AcquireTarget()
+        {
             var clients = NetworkManager.Singleton != null ? NetworkManager.Singleton.ConnectedClientsList : null;
-            if (clients == null || clients.Count == 0) { _target = null; _state = State.Idle; return; }
+            if (clients == null || clients.Count == 0) { _target = null; return; }
 
             float bestSqr = float.MaxValue;
             Transform best = null;
@@ -81,72 +104,141 @@ namespace Elyqara.Enemies
                 if (sqr < bestSqr) { bestSqr = sqr; best = po.transform; }
             }
             _target = best;
-
-            if (_target == null) { _state = State.Idle; return; }
-
-            float dist = Mathf.Sqrt(bestSqr);
-            if (_state == State.Idle && dist <= data.aggroRadius) _state = State.Chase;
-            else if (dist > data.deaggroRadius) { _state = State.Idle; _target = null; }
+            if (_target != null && bestSqr > data.deaggroRadius * data.deaggroRadius)
+                _target = null;
         }
 
-        private void TickIdle()
+        // ==== State logic ====
+        private void TickState()
         {
-            _rigidbody.linearVelocity = new Vector3(0f, _rigidbody.linearVelocity.y, 0f);
-        }
-
-        private void TickChase()
-        {
-            if (_target == null) return;
-            FaceTarget();
-            float dist = Vector3.Distance(transform.position, _target.position);
-            if (dist <= data.attackRange && _attackCooldownLeft <= 0f)
+            switch (_state)
             {
-                _state = State.Attack;
-                _windupLeft = data.attackWindup;
-                _windupPending = true;
-                _rigidbody.linearVelocity = new Vector3(0f, _rigidbody.linearVelocity.y, 0f);
-                return;
+                case AIState.Idle:
+                    if (_target != null && HorizontalDistance(_target.position, transform.position) <= data.aggroRadius)
+                        Transition(AIState.Chase);
+                    break;
+
+                case AIState.Chase:
+                    if (_target == null) { Transition(AIState.Idle); break; }
+                    float dist = HorizontalDistance(_target.position, transform.position);
+                    if (dist > data.deaggroRadius) { Transition(AIState.Idle); break; }
+                    if (dist <= data.attackRange && _cooldownLeft <= 0f)
+                        Transition(AIState.Anticipation);
+                    break;
+
+                case AIState.Anticipation:
+                    _phaseTimer -= Time.deltaTime;
+                    if (_phaseTimer <= 0f) Transition(AIState.Active);
+                    break;
+
+                case AIState.Active:
+                    _phaseTimer -= Time.deltaTime;
+                    if (_phaseTimer <= 0f) Transition(AIState.Recovery);
+                    break;
+
+                case AIState.Recovery:
+                    _phaseTimer -= Time.deltaTime;
+                    if (_phaseTimer <= 0f)
+                    {
+                        _cooldownLeft = data.attackCooldown;
+                        Transition(AIState.Chase);
+                    }
+                    break;
             }
-            Vector3 dir = (_target.position - transform.position);
-            dir.y = 0f;
-            if (dir.sqrMagnitude > 0.01f) dir.Normalize();
-            Vector3 v = dir * data.moveSpeed;
-            v.y = _rigidbody.linearVelocity.y;
-            _rigidbody.linearVelocity = v;
         }
 
-        private void TickAttack()
+        // 한 곳에서만 _state 변경. 진입 시 phase 초기화 + Active 진입 = swing 발사.
+        private void Transition(AIState next)
         {
-            FaceTarget();
-            _rigidbody.linearVelocity = new Vector3(0f, _rigidbody.linearVelocity.y, 0f);
-            if (!_windupPending) { _state = State.Chase; return; }
-
-            _windupLeft -= Time.deltaTime;
-            if (_windupLeft > 0f) return;
-
-            // Windup 끝 — 데미지 적용
-            if (_target != null)
+            AIState prev = _state;
+            _state = next;
+            switch (next)
             {
-                float dist = Vector3.Distance(transform.position, _target.position);
-                if (dist <= data.attackRange + 0.3f)
+                case AIState.Anticipation: _phaseTimer = data.attackWindup; break;
+                case AIState.Active:
+                    _phaseTimer = data.attackActive;
+                    PerformHit();   // ★ Anticipation 끝 = swing 순간 = hitbox 한 번
+                    break;
+                case AIState.Recovery: _phaseTimer = data.attackRecovery; break;
+            }
+            if (logStateTransitions) Debug.Log($"[{name}] {prev} -> {next}");
+        }
+
+        // ==== Movement (FixedUpdate) ====
+        private void ApplyMovement()
+        {
+            Vector3 vel = _rigidbody.linearVelocity;
+
+            if (_state == AIState.Chase && _target != null)
+            {
+                Face(_target.position);
+                Vector3 toTarget = _target.position - transform.position;
+                toTarget.y = 0f;
+                float dist = toTarget.magnitude;
+                if (dist > data.chaseStopDistance && dist > 0.01f)
                 {
-                    var dmg = _target.GetComponent<IDamageable>();
-                    if (dmg != null) dmg.ApplyDamageServer(data.attackDamage);
+                    Vector3 dir = toTarget / dist;
+                    vel.x = dir.x * data.moveSpeed;
+                    vel.z = dir.z * data.moveSpeed;
+                }
+                else
+                {
+                    vel.x = 0f; vel.z = 0f;
                 }
             }
-            _windupPending = false;
-            _attackCooldownLeft = data.attackCooldown;
-            _state = State.Chase;
+            else if (_state == AIState.Anticipation || _state == AIState.Active || _state == AIState.Recovery)
+            {
+                if (_target != null && _state == AIState.Anticipation) Face(_target.position);
+                // Active/Recovery 동안 회전 잠금 — swing 후 punish window 의 정직성
+                vel.x = 0f; vel.z = 0f;
+            }
+            else // Idle
+            {
+                vel.x = 0f; vel.z = 0f;
+            }
+
+            _rigidbody.linearVelocity = vel;
         }
 
-        private void FaceTarget()
+        private void Face(Vector3 worldPos)
         {
-            if (_target == null) return;
-            Vector3 dir = _target.position - transform.position;
+            Vector3 dir = worldPos - transform.position;
             dir.y = 0f;
             if (dir.sqrMagnitude < 0.01f) return;
             Quaternion want = Quaternion.LookRotation(dir);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, want, data.turnSpeedDegPerSec * Time.deltaTime);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, want, data.turnSpeedDegPerSec * Time.fixedDeltaTime);
+        }
+
+        // ==== Hitbox ====
+        private void PerformHit()
+        {
+            Vector3 origin = transform.position;
+            Vector3 forward = transform.forward;
+            float reach = data.attackRange + 0.5f;   // capsule radius 합 흡수용 약간의 여유
+            Collider[] hits = Physics.OverlapSphere(origin, reach, ~0);
+            float cosThreshold = Mathf.Cos(data.hitboxHalfAngleDeg * Mathf.Deg2Rad);
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                Collider c = hits[i];
+                if (c == null || c.attachedRigidbody == null) continue;
+                GameObject t = c.attachedRigidbody.gameObject;
+                if (t == gameObject) continue;
+                Vector3 toT = c.transform.position - origin;
+                toT.y = 0f;
+                if (toT.sqrMagnitude < 0.0001f) continue;
+                toT.Normalize();
+                if (Vector3.Dot(forward, toT) < cosThreshold) continue;
+
+                IDamageable dmg = t.GetComponent<IDamageable>();
+                if (dmg != null) dmg.ApplyDamageServer(data.attackDamage);
+            }
+        }
+
+        private static float HorizontalDistance(Vector3 a, Vector3 b)
+        {
+            Vector3 d = a - b; d.y = 0f;
+            return d.magnitude;
         }
     }
 }

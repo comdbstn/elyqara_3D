@@ -23,6 +23,7 @@ namespace Elyqara.Player
 
         public override void OnNetworkSpawn()
         {
+            Health.OnValueChanged += OnHealthChanged;
             if (!IsServer) return;
 
             _data = _binder.Character;
@@ -30,6 +31,17 @@ namespace Elyqara.Player
             float maxSt = _data != null ? _data.maxStamina : 100f;
             Health.Value = maxHp;
             Stamina.Value = maxSt;
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            Health.OnValueChanged -= OnHealthChanged;
+        }
+
+        private void OnHealthChanged(float prev, float now)
+        {
+            string side = IsServer ? "Host" : (IsOwner ? "Owner" : "Other");
+            Debug.Log($"[Player HP cid={OwnerClientId}] {side}: {prev:F0} -> {now:F0}");
         }
 
         private void Update()
