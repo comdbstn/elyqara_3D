@@ -185,8 +185,12 @@ public class AttackProperty {
 > 새 시스템 추가될 때마다 한 줄 추가. 새 세션 클로드가 빠르게 파악 가능하도록.
 
 ### 현재 상태 (2026-05-01)
-- **코드 0줄.** 단계 1 (NGO + Capsule 동기화) 시작 직전
-- **폴더 스켈레톤**: `Assets/_Project/{Scripts,Data,Prefabs,Scenes,Settings,Art,Audio}/` (전부 `.gitkeep`만)
+- **단계 1 ✅ 완료** — "둘이 같이 움직임" 검증 통과 (MPPM 로 host+client 동기화 확인)
+- **코드**: `Assets/_Project/Scripts/Networking/` (asmdef + NetworkBootstrap + PlayerMovement)
+- **프리팹**: `Assets/_Project/Prefabs/Networking/Player.prefab` (Capsule + Rigidbody + NetworkObject + NetworkTransform + NetworkRigidbody + PlayerMovement)
+- **씬**: `SampleScene` 에 `[Network]` (NetworkManager + UnityTransport + NetworkBootstrap) + `Ground` Plane
+- **폴더 스켈레톤**: `Assets/_Project/{Scripts/Networking,Data,Prefabs/Networking,Scenes,Settings,Art,Audio}/`
+- **GitHub**: `https://github.com/comdbstn/elyqara_3D` main 브랜치
 - **Steam AppID**: 480 (Spacewar) — dev 테스트용. 실제 출시 전 교체 필수
 - **MCP**: CoplayDev/unity-mcp 9.6.8 등록 완료. `claude mcp list` 결과 = `unity-mcp: http://127.0.0.1:8080/mcp (HTTP) - ✓ Connected`. Unity 켜져있는 동안만 작동 (서버가 Unity 안에서 돌아감). 첫 도구 호출 전 항상 `claude mcp list` 로 검증 권장
 - **Steam P2P 트랜스포트**: 보류. 단계 1 은 NGO 기본 UTP(Unity Transport)로 LAN 테스트. 커뮤니티 Facepunch 트랜스포트는 컴파일 깨짐 확인 (FacepunchTransport.cs:288 CS1028) → 단계 1 검증 후 별도 솔루션
@@ -227,11 +231,10 @@ public class AttackProperty {
 | Claude Code | 활성 ✅ | (이 세션) |
 | /etc/paths.d/homebrew | ✅ | `/opt/homebrew/bin` GUI 앱 PATH 에 자동 포함 |
 
-### 카테고리별 미래 인덱스 (단계 진행하면서 채움)
+### 카테고리별 인덱스 (단계 진행하면서 채움)
 > 형식: **카테고리**: 인터페이스 + 매니저 + 데이터 패턴
 
-(예시 — 아직 미구현)
-- **네트워킹**: NetworkBootstrap + (단계 1 후) SteamLobbyService. 새 네트워크 기능 다 여기
+- **네트워킹** ✅ 단계 1: `Elyqara.Networking` asmdef. `NetworkBootstrap` (Host/Client/Server OnGUI + UnityTransport 자동 link). `PlayerMovement : NetworkBehaviour` (IsOwner 입력 → ServerRpc → 호스트 Rigidbody.linearVelocity → NetworkRigidbody+NetworkTransform 동기화). Player.prefab 자동 등록 (DefaultNetworkPrefabs.asset). 네트워크 신기능 모두 이 asmdef 안. (단계 1 후) SteamLobbyService 추가 예정
 - **캐릭터**: ICharacter + CharacterManager. 무기는 캐릭터별 고정
 - **적**: IEnemy + EnemyManager. 새 적 = ScriptableObject 한 장
 - **스킬**: ISkill + SkillManager (백로그)
