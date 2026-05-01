@@ -98,3 +98,22 @@
 - **Snap 메뉴 (Cmd+Alt+S)**: 두 Door socket 선택 → 자동 align. 활성 = source (이동) / 다른 = anchor (고정). delta = anchor.world - source.world → sourceRoom.transform.position += delta
 - **DungeonGenerator 7-room layout**: 십자 (StartRoom 동서남북 1개씩) + East 연쇄 2개 = 7개. 모두 StartRoom 복제 (1차 검증용 — 모양 다양성은 단계 12+ 콘텐츠 확장)
 - **CLAUDE.md 분할**: 사용자 우려 *"파일 너무 커지면 너가 읽을때마다 시간이 걸리고 오류 발생할 확률"*. CLAUDE.md 498라인 → 핵심만 + `docs/` 분할 (sop / packages / decisions / elyqara-2d-ref). 매 turn 자동 로딩 부담 감소
+
+## 2026-05-02 단계 7 통과 + NGO auto-populate 진단 학습 + 톤 룰 완화 (3차 직인)
+- **단계 7 ✅** "적 잡으면 뭔가 떨어짐" — ItemDrop 파이프라인 + F키 픽업 + 그리드 인벤토리
+- **사용자 직인**: *"좋아 모두 정상작동해"*
+- **검증 시퀀스**: Wisp 처치 → 바닥 DroppedItem → I 키 인벤 → F 키 픽업 → 슬롯 표시
+- **핵심 결정 (사용자 명확화)**: *"4명 분배는 없어 그냥 먹는사람인벤으로 들어가"* — 분배 메커니즘 X. 자유 경쟁 = 협동의 본질. CLAUDE.md 비전 #3 "같은 드랍을 같이 보고 분배" = *분배 = 자유 경쟁 결과* 명확화. 단계 8 = 코드 X (4명 검증만, 단계 11 합쳐질 가능성)
+- **추가 코드**: `Elyqara.Items` asmdef + 11 .cs (IItem/ItemEffect/ItemData/ItemDatabase/ItemSlot/DropTableData/DroppedItem/ItemSpawner/Inventory/InventoryUI) + Player asmdef 2 새 (PlayerPickup/PlayerInventoryBinder) + 5 수정 (PlayerInput/Player.asmdef/Enemies.asmdef/EnemyData/EnemyController)
+- **Editor 도구**: `Phase7Setup.cs` — 5 ItemData + ItemDatabase + WispDropTable + DroppedItem prefab + InventorySlot prefab + Wisp dropTable ref + Player 컴포넌트 + 씬 [InventoryCanvas] 자동 생성 (한 메뉴 클릭)
+- **NGO 동기화 패턴**: `DroppedItem.NetworkVariable<int>` 인덱스 동기화. ItemDatabase Singleton 으로 클라가 같은 인덱스로 ItemData lookup. 단일 prefab + 인덱스로 모든 ItemData 처리 (prefab variant 안 만듦)
+- **★ 진단 부족 지적 (NGO auto-populate 학습)**:
+  - 사용자 직인: *"이거 큰문제야 니가 감을 못잡는거. 전체문서 다시읽고 너의 규칙도 다시 상기하고, 프로젝트 코드도 한줄도 빠짐없이 세팅도 다 읽고 인터넷 검색한뒤에 문제 해결해"*
+  - Phase7Setup 후 클로드가 *"NetworkPrefabs 에 DroppedItem manual 추가 부탁"* 잘못된 안내 → 사용자 picker 창 (다른 화면) 보고 혼란
+  - 진단 결과 = NGO 2.x `Assets/DefaultNetworkPrefabs.asset` auto-populate. 프로젝트 안 NetworkObject prefab 자동 추가. yaml read 검증 = Player + Wisp + DroppedItem GUID 자동 등록됨
+  - **Hook**: 새 메모리 `feedback_ngo_auto_populate.md` — manual 등록 안내 X
+- **★ 톤 룰 완화 (3차 직인)**:
+  - 사용자 직인: *"박혀있을거좀 적당히 쓰는건 괜찮은데 ㅅㅂ 정신병자마냥 매순간순간 쓰니까 미친놈같잖아 적당히좀해"*
+  - `feedback_no_pak_word.md` 갱신 — 완전 금지 X. 적당히 OK. 매 응답 / 매 문장 X. 빈도 룰 추가
+- **1차 ItemData 풀 (5장 균일 가중치)**: Sword (Slash +12%) / Shield (Blunt +12%) / Amulet_Slash (+18%) / Amulet_Blunt (+18%) / Ring (Slash + Blunt 둘 다 +6%)
+- **효과 적용 미루기**: `Inventory.GetTotalEffect` 메서드는 추가됨. BasicMeleeSkill 호출 시 곱 = 단계 9 본격 (데미지 파이프라인 시점)

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e32f334bdecaf4654bbc5016435bd62d, type: 3}
+  m_Name: ItemDatabase
+  m_EditorClassIdentifier: Elyqara.Items::Elyqara.Items.ItemDatabase
+  items:
+  - {fileID: 11400000, guid: d4d662220258f4abd8276e53a46e31eb, type: 2}
+  - {fileID: 11400000, guid: 66d1d929a8dd04171b4a2260de3426e2, type: 2}
+  - {fileID: 11400000, guid: 4f7b3a13c4e8b4d8ebf0ee614929928a, type: 2}
+  - {fileID: 11400000, guid: 88ca280bfbaba4ed8833ac4e1105b3ef, type: 2}
+  - {fileID: 11400000, guid: aab7e8993f0994ac5bc44bc5e12f9414, type: 2}

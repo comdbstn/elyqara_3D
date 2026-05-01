@@ -12,6 +12,8 @@ namespace Elyqara.Player
         public InputAction SecondaryAction => _secondaryAction;
         public InputAction QSkillAction => _qSkillAction;
         public InputAction DodgeAction => _dodgeAction;
+        public InputAction PickupAction => _pickupAction;
+        public InputAction InventoryAction => _inventoryAction;
 
         private InputAction _moveAction;
         private InputAction _lookAction;
@@ -19,6 +21,8 @@ namespace Elyqara.Player
         private InputAction _secondaryAction;
         private InputAction _qSkillAction;
         private InputAction _dodgeAction;
+        private InputAction _pickupAction;
+        private InputAction _inventoryAction;
 
         private bool _isEnabled;
 
@@ -49,6 +53,13 @@ namespace Elyqara.Player
 
             _dodgeAction = new InputAction("Dodge", InputActionType.Button, "<Keyboard>/space");
             _dodgeAction.AddBinding("<Gamepad>/buttonSouth");
+
+            // 단계 7 — 인벤 + 픽업 액션
+            _pickupAction = new InputAction("Pickup", InputActionType.Button, "<Keyboard>/f");
+            _pickupAction.AddBinding("<Gamepad>/buttonWest");
+
+            _inventoryAction = new InputAction("Inventory", InputActionType.Button, "<Keyboard>/i");
+            _inventoryAction.AddBinding("<Gamepad>/select");
         }
 
         public void EnableAll()
@@ -60,6 +71,8 @@ namespace Elyqara.Player
             _secondaryAction.Enable();
             _qSkillAction.Enable();
             _dodgeAction.Enable();
+            _pickupAction.Enable();
+            _inventoryAction.Enable();
             _isEnabled = true;
         }
 
@@ -72,6 +85,8 @@ namespace Elyqara.Player
             _secondaryAction.Disable();
             _qSkillAction.Disable();
             _dodgeAction.Disable();
+            _pickupAction.Disable();
+            _inventoryAction.Disable();
             _isEnabled = false;
         }
 
@@ -83,6 +98,8 @@ namespace Elyqara.Player
             _secondaryAction?.Dispose();
             _qSkillAction?.Dispose();
             _dodgeAction?.Dispose();
+            _pickupAction?.Dispose();
+            _inventoryAction?.Dispose();
         }
     }
 }

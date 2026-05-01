@@ -1,15 +1,9 @@
 {
-    "name": "Elyqara.Player",
-    "rootNamespace": "Elyqara.Player",
+    "name": "Elyqara.Items",
+    "rootNamespace": "Elyqara.Items",
     "references": [
         "Unity.Netcode.Runtime",
-        "Unity.Netcode.Components",
-        "Unity.Networking.Transport",
-        "Unity.InputSystem",
-        "Unity.Cinemachine",
-        "Elyqara.Characters",
-        "Elyqara.Skills",
-        "Elyqara.Items"
+        "Unity.Netcode.Components"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

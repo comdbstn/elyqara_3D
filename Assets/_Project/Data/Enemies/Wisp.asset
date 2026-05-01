@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Elyqara.Enemies::Elyqara.Enemies.EnemyData
   enemyName: Wisp
   maxHealth: 120
+  dropTable: {fileID: 11400000, guid: f945808363a1b468788471671f2c71f3, type: 2}
   moveSpeed: 3
   turnSpeedDegPerSec: 360
   chaseStopDistance: 1.7

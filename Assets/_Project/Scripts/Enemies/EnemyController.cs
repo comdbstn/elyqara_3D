@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 using Elyqara.Skills;
+using Elyqara.Items;
 
 namespace Elyqara.Enemies
 {
@@ -68,6 +69,13 @@ namespace Elyqara.Enemies
         private void Die()
         {
             Transition(AIState.Dead);
+
+            // 단계 7 — 드랍. Despawn 전에 호출 (transform.position 사용 위해).
+            if (data != null && data.dropTable != null)
+            {
+                ItemSpawner.SpawnFromTable(data.dropTable, transform.position);
+            }
+
             if (NetworkObject != null && NetworkObject.IsSpawned)
                 NetworkObject.Despawn(true);
         }

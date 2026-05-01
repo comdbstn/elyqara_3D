@@ -1,4 +1,5 @@
 using UnityEngine;
+using Elyqara.Items;
 
 namespace Elyqara.Enemies
 {
@@ -10,6 +11,10 @@ namespace Elyqara.Enemies
 
         [Header("Resources")]
         public float maxHealth = 120f;
+
+        [Header("Drops (단계 7)")]
+        [Tooltip("죽음 시 ItemSpawner.SpawnFromTable 호출. null = 드랍 X.")]
+        public DropTableData dropTable;
 
         [Header("Movement")]
         public float moveSpeed = 3f;
