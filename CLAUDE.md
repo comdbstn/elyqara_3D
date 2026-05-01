@@ -27,7 +27,16 @@
 2. **단일 매니저** — 카테고리당 매니저 1개 (적/스킬/아이템/UI/방 등). 새 기능은 그 안에 들어감. 옆에 새 매니저 만들지 말 것
 3. **인터페이스 우선** — 모든 적은 IEnemy, 모든 스킬은 ISkill, 모든 아이템은 IItem 등. 새 코드가 인터페이스 없이 추가되지 못하게 구조
 4. **추가 = 데이터 추가** — 새 캐릭/적/아이템이 ScriptableObject 한 장 + 코드 0~1줄로 끝나는 구조. 코드 추가 필요하면 인터페이스 부족 신호
-5. **환상 금지** — 코드 추가 전 기존 패턴/파일/타입 실제 확인. 추측해서 만들지 말 것
+5. **★ 환상 금지** — 코드 추가 전 기존 패턴/파일/타입 실제 확인. 추측해서 만들지 말 것
+    - **★ 값/버전/ID/임계값/이름 결정도 동일 룰** (manifest 버전, 코드 상수, asset GUID, 임계값 등). 박기 직전 자문: *"이 값이 어디서 왔나? 메모리/방금 읽은 docs/방금 읽은 코드 에서 직접 인용 가능한가?"*
+    - **Citation-first** — 못 가르치면 추측. 박지 말고:
+      - 사용자에게 묻기 (Package Manager UI 통한 설치 부탁 등)
+      - WebSearch 한 번 더 (검증된 source 찾기)
+      - 즉시 *"확인 안 됨"* 박고 멈춤
+    - **위험 신호 = 환상의 가면**: *"안전한 보수"* / *"likely correct"* / *"보통 그렇다"* / *"보수적 stable"* — 이런 표현 떠오르면 **그 자체가 추측 신호**. 멈추기
+    - **Mid-response retraction** — 박는 도중 의심 들면 즉시 멈추고 사용자에게 보고. 끝까지 박은 후 사용자 확인 X
+    - **불확실성 인정 우선** — *"모르겠다"* 가 추측 답 보다 항상 우선. 사용자 직인 2026-05-02 *"가장중요해 저건 추측안하기"*
+    - **트리거 사례** (재발 방지): 2026-05-02 ProBuilder 6.0.4 — Claude 가 *"안전한 보수 6.0.4"* 추측 박음. WebSearch 결과에 6.0.4 source 0건이었는데도 박음. Editor fatal crash. 정공 = 사용자에게 Package Manager UI 통한 설치 부탁이었음
 6. **메모리 즉시 갱신** — 사용자 결정/명확화는 그 턴에 박기. 글로벌 메모리(`~/.claude/projects/-Users-jeong-yunsu/memory/`)와 이 CLAUDE.md 둘 다 갱신
 7. **컨벤션 일관성** — 한 번 정한 패턴은 모든 비슷한 케이스에서 동일하게. "예외" 만들지 말 것
 8. **YAGNI** — 지금 안 쓰는 추상화/헬퍼/유틸리티 만들지 말 것. 3번 같으면 그때 추출
@@ -48,15 +57,26 @@
 6. 데이터로 풀 수 있으면 코드 추가 0줄로 끝
 7. 메모리 갱신 + 시스템 인덱스 한 줄 추가
 
-### 패키지 추가 SOP (2026-05-01 Facepunch 폭발에서 학습)
+### 패키지 추가 SOP (2026-05-01 Facepunch + 2026-05-02 ProBuilder 6.0.4 폭발에서 학습)
 
 > 리서치 결과 ≠ 검증된 사실. 적용 전 컴파일 1회 필수.
+> ★ **버전 = 검증된 source 직접 인용 만**. 추측 박기 절대 금지 (절대 원칙 #5)
 
 1. **한 번에 1개씩 추가** — 여러 패키지 동시 추가 절대 금지. 깬 게 어느 건지 격리 못 함
-2. **커뮤니티 / git URL 패키지는 GitHub 최근 커밋 + open issues 확인 후에만**
-3. 추가 → Unity 재컴파일 → `~/Library/Logs/Unity/Editor.log` (또는 MCP `read_console`) 으로 컴파일 에러 0건 확인
-4. 에러 있으면 **즉시 manifest 에서 제거** (해결 시도 X — 다른 패키지 추가 막힘)
-5. 클린 확인 후 다음 패키지
+2. **★ Unity 공식 패키지** (`com.unity.*`) — Claude 가 manifest 직접 박지 말 것. 사용자에게 *Window > Package Manager > Unity Registry > [패키지명] > Install* UI 통한 설치 부탁. Unity 가 호환 권장 버전 자동 결정 + manifest.json 자동 update. **예외**: 메모리/CLAUDE.md 에 검증된 버전 박혀있는 경우 (예: NGO 2.4.4, Cinemachine 3.1.6) 만 manifest 직접 박기 OK
+3. **★ 커뮤니티 / git URL 패키지** — GitHub 최근 커밋 + open issues 확인 후 manifest 박기. 단 버전 = README/release page/메모리 박힌 값 직접 인용
+4. 추가 → Unity 재컴파일 → `~/Library/Logs/Unity/Editor.log` (또는 MCP `read_console`) 으로 컴파일 에러 0건 확인
+5. 에러 있으면 **즉시 manifest 에서 제거** (해결 시도 X — 다른 패키지 추가 막힘) + **`Library/PackageCache/[패키지명]@*` 폴더 삭제** (캐시 손상 정공 — Unity 종료 후 사용자 직접 또는 클로드 Bash 권한 시) + 사용자에게 Package Manager 통한 재설치 부탁
+6. 클린 확인 후 다음 패키지
+
+### 환경 fix — PackageCache 손상 (캐시 깨짐 패턴)
+
+> 패키지 추가 fatal 시 manifest 변경만으로는 *깨진 캐시* 가 남음. 다음 설치 시도도 같은 fatal 재발
+
+1. Unity Editor 완전 종료
+2. Finder 또는 터미널에서 `Library/PackageCache/com.unity.[패키지명]@*` 폴더 삭제 (Unity 가 자동 재생성하는 캐시. Asset 손상 X)
+3. **Library 전체 삭제** 까지 가면 후 reimport 시간 큼 — 표적 정리 우선
+4. Unity Editor 재시작 → Package Manager 가 처음부터 다시 다운로드 → 클린 설치
 
 ### 리서치 ≠ 검증
 
@@ -140,8 +160,8 @@ public class AttackProperty {
 | 2 | 검방패 캐릭터 완성 → **슬롯/자원 그릇** (사용자 결정으로 동작 구현 미룸) | "캐릭터 슬롯/자원 그릇 완성" | ✅ |
 | 3 | 더미 적 1종 + 한 마리 집중 AI | "혼자 적 한 마리 잡는 게 재밌음" | ✅ |
 | 4 | 2~4명 멀티 동기화 + 적 AI 표준 패턴 갈아엎힘 | "같이 잡는 게 더 재밌음" | ✅ |
-| 5 | 좁은 던전 1방 (단일) | "좁은 공간 포지셔닝 의미 있음" | 🟢 다음 |
-| 6 | 던전 확장 (방+통로, **C 하이브리드** Elyqara 그리드 3D 포팅) | "한 런 길이 감" | |
+| 5 | 좁은 던전 1방 (ProBuilder 그레이박스 + StartRoom prefab) | "좁은 공간 포지셔닝 의미 있음" | ✅ |
+| 6 | 던전 확장 (방+통로, **C 하이브리드** Elyqara 그리드 3D 포팅) | "한 런 길이 감" | 🟢 다음 |
 | 7 | 빌드 시스템 (Elyqara 그리드 인벤토리 차용) | "적 잡으면 뭔가 떨어짐" | |
 | 8 | 자유 픽업 드랍 (그냥 바닥) | "협동의 본질이 굴러감" | |
 | 9 | 다운/부활 | "한 명 죽어도 끝 아님" | |
@@ -195,6 +215,7 @@ public class AttackProperty {
 - **단계 2 ✅** "캐릭터 슬롯/자원 그릇 완성" — MPPM 두 캡슐 + 어깨 너머 카메라 + owner 분리 통과
 - **단계 3 ✅** "혼자 적 한 마리 잡는 게 재밌음" — Wisp 좌클릭 4회 사망 + Souls 톤 카메라 검증 통과. 사용자 직인 *"저것까지 제대로 작동하네"*
 - **단계 4 ✅** "같이 잡는 게 더 재밌음" — 멀티 동기화 + 적 AI Souls-like 표준 패턴 갈아엎힘 (6-state FSM / 4-phase attack / stopping distance). 사용자 직인 *"4단계 끝났어"* + *"인터넷 찾아보고 코드 수정하니까 뭔가 완성된 코드로 가져와서 훨신 수정하기도 편하고 퀄리티도 좋네"*
+- **단계 5 ✅** "좁은 공간 포지셔닝 의미 있음" — ProBuilder 6.0.9 그레이박스 + StartRoom prefab (벽 + 입구 + 내부 obstacle, EnemySpawner 흡수). 사용자 직인 *"벌써재밌다 평생 3d만 만들래"* + *"5단계 여기서 끝내고 6단계 들어가자"*. ★ ProBuilder 6.0.4 추측 폭발 → 추측 금지 hook 박힘 (절대 원칙 #5 강화 + 새 메모리 `feedback_no_guessing_values.md`)
 - **코드**: `Assets/_Project/Scripts/{Networking,Player,Characters}/` (asmdef 3개 분리)
 - **프리팹**: `Player.prefab` (root: Capsule + Rigidbody + NetworkObject + NetworkTransform + NetworkRigidbody + PlayerMovement + PlayerInput + PlayerCharacterBinder + PlayerResources + PlayerCamera) + 자식 `vCam` (CinemachineCamera + ThirdPersonFollow)
 - **씬**: `SampleScene` 에 `[Network]` (NetworkManager + UnityTransport + NetworkBootstrap) + `Ground` Plane + Main Camera 에 CinemachineBrain
@@ -211,6 +232,7 @@ public class AttackProperty {
 |---|---|---|
 | `com.coplaydev.unity-mcp` | git/main | Claude ↔ Unity MCP 브릿지. Editor 안에서 도구 호출 받음 |
 | `com.unity.netcode.gameobjects` | 2.4.4 | NGO 2.x — 호스트 권한 네트워킹. NGO 1.x는 6000.3 deprecated |
+| `com.unity.probuilder` | 6.0.9 | ProBuilder — Unity 안 그레이박스/레벨 모델링. 단계 5+ 던전 방 prefab. **버전 결정 = Package Manager UI 통한 설치만 (Unity 공식 호환 자동 결정. manifest 임의 박기 X — 추측 금지)** |
 | `com.unity.cinemachine` | 3.1.6 | CM3 — 3인칭 추격 카메라. **API 가 CM2와 다름** (`CinemachineCamera`) |
 | `com.unity.render-pipelines.universal` | 17.3.0 | URP — Forward+ 추천. 모바일 렌더러도 같이 들어가있음 |
 | `com.unity.inputsystem` | 1.18.0 | New Input System. legacy `Input.GetAxis` 대체 |
@@ -251,7 +273,7 @@ public class AttackProperty {
 - **적** ✅ 단계 3 + 🔄 단계 4 표준 패턴 갈아엎힘: `Elyqara.Enemies` asmdef. `IEnemy` + `EnemyData : ScriptableObject` (HP/속도/어그로/4-phase attack/stopping distance/콘 hitbox) + `EnemyController : NetworkBehaviour` **Souls-like 표준 FSM 6상태** (Idle/Chase/Anticipation/Active/Recovery/Dead). 룰: ① **Stopping distance** (Chase 중 chaseStopDistance 유지, 박치기 X) ② **4-phase attack** (windup/active/recovery/cooldown 분리, Recovery 동안 정지=telegraph 무게감+Player punish window) ③ **Transition() 단일 진입점** (`_state =` 직접 박는 곳 X) ④ **Update=로직 / FixedUpdate=물리 분리** ⑤ **Active phase OverlapSphere 콘 hitbox** (BasicMeleeSkill 과 동일 패턴). 모든 적 공통 베이스 — 새 적 = SO 한 장 + prefab 한 장. 첫 적 = `Wisp.asset` (HP 120, windup 0.5/active 0.1/recovery 0.6/cooldown 0.8 → 2초 cycle). `EnemySpawner` Host 시작 시 1마리
 - **스킬** ✅ 단계 3: `Elyqara.Skills` asmdef. `ISkill` + `SkillData : ScriptableObject, ISkill` (추상) + `BasicMeleeSkill` (구체 — 콘 hitbox 데미지) + `IDamageable` (Player/Enemy 둘 다 구현). 새 스킬 = SkillData 상속 SO 한 장. `PlayerSkillExecutor` 가 4슬롯 입력 → `SkillData.ActivateOnServer` 호출. 첫 스킬 = `BasicMelee.asset`
 - **아이템**: IItem + InventoryManager (Elyqara 그리드 차용 — 단계 7)
-- **던전**: GridMapGenerator → GridDungeonBuilder → GridRoomManager (Elyqara 패턴 — 단계 5/6)
+- **던전** ✅ 단계 5 (1방 그레이박스): `Assets/_Project/Prefabs/Dungeon/Rooms/StartRoom.prefab` (ProBuilder open box + 입구 + 내부 obstacle, EnemySpawner 자식 흡수). 새 방 = prefab 한 장 (절대 원칙 #4). 단계 6 = `Elyqara.Dungeon` asmdef + IRoom + DungeonManager + RoomData SO + GridMapGenerator → GridDungeonBuilder → GridRoomManager 패턴 (Elyqara 2D read-only 참조)
 - **공격 속성**: AttackProperty 데이터 구조. 캐릭/무기/스킬/효과가 참조 (단계 5+)
 
 ---
@@ -413,6 +435,21 @@ public class AttackProperty {
 - **권한 게이트 제거**: `.claude/settings.json` 의 모든 ask → allow. deny 는 후처리 불가능한 destructive 만 (rm -rf, git reset --hard, push --force, branch -D 등). 사용자 결정 — review 능력 부재로 ask 마찰 무의미. **Claude self-discipline 가중** (9 원칙 + SOP 자동 self-check)
 - **Server 버튼 유지 결정**: NetworkBootstrap 의 Server 버튼은 의도적 유지. 다음 세션이 다시 빼라고 제안 X. 단계 후반 로비 UI 만들면 자연 제거됨
 - **HANDOFF.md 삭제**: 단계 1 직전 상태 인계 문서. 쓰임 다 함
+
+### 2026-05-02 단계 5 통과 + 추측 금지 hook 박힘
+- **단계 5 ✅** "좁은 공간 포지셔닝 의미 있음" — ProBuilder 6.0.9 + StartRoom prefab (ProBuilder open box + 4면 벽 + 입구 + 내부 obstacle, EnemySpawner 자식 흡수)
+- **사용자 직인** (재미): *"됐다 씨 벌써재밌다 난 평생 3d만 만들래"* + *"5단계 여기서 끝내고 6단계 들어가자"*
+- **★ ProBuilder 6.0.4 추측 폭발 학습 (재발 방지 hook 박힘)**:
+  - Claude 가 6.0.4 *"안전한 보수 stable"* 추측 박음 → Compilation Pipeline fatal crash 두 번
+  - WebSearch 결과에 6.0.4 source 0건이었는데도 박음 = 환상 (절대 원칙 #5 위반)
+  - 사용자 직인: *"진짜 문제는 이 문제가 아니라 이런 간단한 문제를 너가 컨트롤 하지 못한다는거야"* + *"가장중요해 저건 추측안하기"* + *"저거 뒤로가면 복잡해져서 하나만 실수해도 프로젝트 꼬여서 저번처럼 전체폐기해야될수도있어"*
+  - **Hook 박힘 (4단)**:
+    1. 절대 원칙 #5 강화 — 값/버전/ID/임계값 포함, Citation-first, 위험 신호 인지 (*"안전한 보수"* / *"likely correct"* 등 = 환상 가면), Mid-response retraction, 불확실성 인정 우선
+    2. 패키지 추가 SOP 강화 — Unity 공식 패키지는 Package Manager UI 통한 사용자 설치 부탁. manifest 임의 박기 금지 (메모리 검증된 버전 예외만)
+    3. 환경 fix SOP — PackageCache 손상시 정공 (`rm -rf Library/PackageCache/com.unity.[패키지명]@*` 또는 Library 전체)
+    4. 새 메모리 `feedback_no_guessing_values.md` — Anthropic 공식 anti-hallucination 5 룰 통합 (Citation-first, 불확실성 인정 우선, Mid-response retraction, 위험 신호 인지, 진행 추진력 ≠ 검증 생략)
+- **Unity 6 ProBuilder 워크플로우 학습**: Tools > ProBuilder > Editors > Create Shape > Cube. Window > ProBuilder Window 가 Unity 6 디자인 변경으로 사라짐 (contextual menu + scene view toolbar 통합)
+- **Player Spawn 위치**: 사용자 결정으로 단계 5 에서 변경 X. 단계 6 SpawnPoint GameObject 패턴 (방 prefab 안 SpawnPoint + PlayerSpawner) 박을 때 정리
 
 ### 2026-05-02 단계 4 진행 — 적 AI 표준 패턴 갈아엎힘
 - **트리거**: 단계 4 검증 중 Wisp 가 첫 공격 후 두번째부터 Player 한테 *꼴아박기만* 함. Claude ad-hoc FSM 3상태 (Idle/Chase/Attack with single windup) 가 두번째 공격 막힌 원인을 코드만 읽고 짚지 못함

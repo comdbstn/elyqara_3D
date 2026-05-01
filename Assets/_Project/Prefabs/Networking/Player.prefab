@@ -164,7 +164,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 287640481
+  GlobalObjectIdHash: 1278509805
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -313,6 +313,14 @@ MonoBehaviour:
   vCam: {fileID: 377185379926840978}
   activePriority: 100
   inactivePriority: 0
+  distance: 5.5
+  verticalOffset: 1.6
+  horizontalOffset: 0
+  pitchSensitivity: 0.1
+  minPitch: -10
+  maxPitch: 50
+  startPitch: 10
+  invertY: 0
 --- !u!114 &7245910775911093702
 MonoBehaviour:
   m_ObjectHideFlags: 0
