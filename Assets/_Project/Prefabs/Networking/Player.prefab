@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 2521217876119032149}
   - component: {fileID: 1129873617590897716}
   - component: {fileID: 7245910775911093702}
+  - component: {fileID: 9105091469282442108}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -333,6 +334,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 919bad67ef0e84dd397d54d9f76d440a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Elyqara.Player::Elyqara.Player.PlayerSkillExecutor
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &9105091469282442108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2893178756320769477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70930761d739e43998c1b8a2d78850f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Elyqara.Dungeon::Elyqara.Dungeon.PlayerSpawnPositioner
   ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &7238867433792234707
 GameObject:

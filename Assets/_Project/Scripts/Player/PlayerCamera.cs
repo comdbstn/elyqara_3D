@@ -48,8 +48,8 @@ namespace Elyqara.Player
             vCam.Priority = priority;
 
             // CM 3.x ThirdPersonFollow 가 우리 환경 (NetworkBehaviour + SetParent(null))
-            // 에서 Tracking Target 추적 안 됨 — disable 박고 PlayerCamera 가 LateUpdate 에서 직접 추적.
-            // prefab 의 vCam 자식에 컴포넌트 박혀있으면 안전망으로 비활성. 컴포넌트 제거는 prefab 정리 시 처리.
+            // 에서 Tracking Target 추적 안 됨 — disable 후 PlayerCamera 가 LateUpdate 에서 직접 추적.
+            // prefab 의 vCam 자식에 컴포넌트 있으면 안전망으로 비활성. 컴포넌트 제거는 prefab 정리 시 처리.
             var follow = vCam.GetComponent<CinemachineThirdPersonFollow>();
             if (follow != null) follow.enabled = false;
         }
@@ -68,7 +68,7 @@ namespace Elyqara.Player
             _pitch += invertY ? dy : -dy;
             _pitch = Mathf.Clamp(_pitch, minPitch, maxPitch);
 
-            // Yaw — Player 의 yaw 받아씀 (PlayerMovement 가 호스트 권위로 박음)
+            // Yaw — Player 의 yaw 받아씀 (PlayerMovement 가 호스트 권위로 갱신)
             float yaw = transform.eulerAngles.y;
 
             Quaternion rot = Quaternion.Euler(_pitch, yaw, 0f);

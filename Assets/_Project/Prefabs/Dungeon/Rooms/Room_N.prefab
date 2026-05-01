@@ -444,7 +444,7 @@ GameObject:
   - component: {fileID: 6913714231803360263}
   - component: {fileID: 5013001949565511832}
   m_Layer: 0
-  m_Name: StartRoom
+  m_Name: Room_N
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -491,7 +491,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80a199bd9d966450e84beb1a5f202e68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Elyqara.Dungeon::Elyqara.Dungeon.Room
-  data: {fileID: 11400000, guid: 24f11580bff8c4e4cac93a63cac16e15, type: 2}
+  data: {fileID: 11400000, guid: 7fe60f1a6e27641febab841fff8266f6, type: 2}
   doorNorth: {fileID: 8427504952313925812}
   doorEast: {fileID: 6098597419341085146}
   doorSouth: {fileID: 6322189116629217285}
