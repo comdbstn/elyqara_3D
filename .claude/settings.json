@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+
+      "Bash(ls:*)",
+      "Bash(pwd)",
+      "Bash(echo:*)",
+      "Bash(which:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(file:*)",
+      "Bash(stat:*)",
+      "Bash(tree:*)",
+
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git remote -v)",
+      "Bash(git ls-files:*)",
+
+      "Bash(brew --version)",
+      "Bash(brew info:*)",
+      "Bash(brew list:*)",
+      "Bash(python3 --version)",
+      "Bash(uv --version)",
+      "Bash(node --version)",
+      "Bash(claude mcp list)",
+
+      "mcp__unity-mcp__get_console_logs",
+      "mcp__unity-mcp__get_scene_info",
+      "mcp__unity-mcp__get_gameobject",
+      "mcp__unity-mcp__get_material_info",
+      "mcp__unity-mcp__select_gameobject",
+      "mcp__unity-mcp__send_console_log",
+      "mcp__unity-mcp__recompile_scripts",
+      "mcp__unity-mcp__run_tests",
+
+      "mcp__unity-mcp__read_console",
+      "mcp__unity-mcp__refresh_unity",
+      "mcp__unity-mcp__validate_script",
+      "mcp__unity-mcp__unity_docs",
+      "mcp__unity-mcp__unity_reflect"
+    ],
+    "ask": [
+      "mcp__unity-mcp__add_asset_to_scene",
+      "mcp__unity-mcp__add_package",
+      "mcp__unity-mcp__assign_material",
+      "mcp__unity-mcp__batch_execute",
+      "mcp__unity-mcp__create_material",
+      "mcp__unity-mcp__create_prefab",
+      "mcp__unity-mcp__create_scene",
+      "mcp__unity-mcp__duplicate_gameobject",
+      "mcp__unity-mcp__execute_menu_item",
+      "mcp__unity-mcp__load_scene",
+      "mcp__unity-mcp__modify_material",
+      "mcp__unity-mcp__move_gameobject",
+      "mcp__unity-mcp__reparent_gameobject",
+      "mcp__unity-mcp__rotate_gameobject",
+      "mcp__unity-mcp__save_scene",
+      "mcp__unity-mcp__scale_gameobject",
+      "mcp__unity-mcp__set_transform",
+      "mcp__unity-mcp__unload_scene",
+      "mcp__unity-mcp__update_component",
+      "mcp__unity-mcp__update_gameobject",
+
+      "mcp__unity-mcp__manage_scene",
+      "mcp__unity-mcp__manage_gameobject",
+      "mcp__unity-mcp__manage_prefabs",
+      "mcp__unity-mcp__manage_components",
+      "mcp__unity-mcp__manage_script",
+      "mcp__unity-mcp__create_script",
+      "mcp__unity-mcp__apply_text_edits",
+      "mcp__unity-mcp__manage_packages",
+      "mcp__unity-mcp__manage_animation",
+      "mcp__unity-mcp__manage_physics",
+      "mcp__unity-mcp__manage_probuilder",
+
+      "Bash(brew install:*)",
+      "Bash(brew upgrade:*)",
+      "Bash(brew uninstall:*)",
+
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(git fetch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(git rebase:*)",
+      "Bash(git stash:*)",
+      "Bash(git init:*)",
+      "Bash(gh:*)"
+    ],
+    "deny": [
+      "mcp__unity-mcp__delete_gameobject",
+      "mcp__unity-mcp__delete_scene",
+
+      "Read(./Library/**)",
+      "Read(./Temp/**)",
+      "Read(./Build/**)",
+      "Read(./Builds/**)",
+      "Read(./obj/**)",
+      "Read(./UserSettings/**)",
+      "Read(./.utmp/**)",
+
+      "Bash(rm -rf:*)",
+      "Bash(rm -f:*)",
+      "Bash(sudo:*)",
+      "Bash(chmod -R:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git checkout --:*)",
+      "Bash(git clean -f:*)",
+      "Bash(git branch -D:*)"
+    ]
+  },
+  "env": {
+    "MCP_TOOL_TIMEOUT": "720000"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[Elyqara_3D] 세션 시작. CLAUDE.md 9 원칙 + Unity MCP 워크플로우 SOP 숙지. 새 코드 전 옛 코드 grep 강제. MCP 끊기면 ~/Library/Logs/Unity/Editor.log 직접 읽기.' >&2"
+          }
+        ]
+      }
+    ]
+  }
+}
