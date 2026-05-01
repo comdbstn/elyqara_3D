@@ -1,4 +1,5 @@
 using UnityEngine;
+using Elyqara.Skills;
 
 namespace Elyqara.Characters
 {
@@ -13,17 +14,17 @@ namespace Elyqara.Characters
         public float maxStamina = 100f;
         public float staminaRegenPerSec = 15f;
 
-        [Header("Skill Slots — 캐릭터별 동작 SO. 단계 5에서 ISkill 정의 후 타입 교체")]
+        [Header("Skill Slots")]
         [Tooltip("마우스 좌클릭 — 기본공격")]
-        public ScriptableObject primarySkill;
+        public SkillData primarySkill;
 
         [Tooltip("마우스 우클릭")]
-        public ScriptableObject secondarySkill;
+        public SkillData secondarySkill;
 
         [Tooltip("Q 키 스킬")]
-        public ScriptableObject qSkill;
+        public SkillData qSkill;
 
         [Tooltip("스페이스바 — 회피")]
-        public ScriptableObject dodgeSkill;
+        public SkillData dodgeSkill;
     }
 }

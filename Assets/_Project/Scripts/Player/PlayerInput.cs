@@ -32,7 +32,9 @@ namespace Elyqara.Player
                 .With("Right", "<Keyboard>/d");
             _moveAction.AddBinding("<Gamepad>/leftStick");
 
-            _lookAction = new InputAction("Look", InputActionType.Value);
+            // Mouse delta 는 매 frame raw input — PassThrough 가 표준. Value 타입은
+            // Initial value 비교 로직 때문에 ReadValue 가 0 으로 읽히는 함정 케이스 있음.
+            _lookAction = new InputAction("Look", InputActionType.PassThrough, expectedControlType: "Vector2");
             _lookAction.AddBinding("<Mouse>/delta");
             _lookAction.AddBinding("<Gamepad>/rightStick");
 

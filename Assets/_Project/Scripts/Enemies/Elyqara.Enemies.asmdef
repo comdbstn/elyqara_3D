@@ -1,7 +1,9 @@
 {
-    "name": "Elyqara.Characters",
-    "rootNamespace": "Elyqara.Characters",
+    "name": "Elyqara.Enemies",
+    "rootNamespace": "Elyqara.Enemies",
     "references": [
+        "Unity.Netcode.Runtime",
+        "Unity.Netcode.Components",
         "Elyqara.Skills"
     ],
     "includePlatforms": [],

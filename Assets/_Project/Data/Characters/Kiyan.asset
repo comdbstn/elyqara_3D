@@ -16,7 +16,7 @@ MonoBehaviour:
   maxHealth: 100
   maxStamina: 100
   staminaRegenPerSec: 15
-  primarySkill: {fileID: 0}
+  primarySkill: {fileID: 11400000, guid: 3947df27b2e9d41a0b61c7b73b05bdcc, type: 2}
   secondarySkill: {fileID: 0}
   qSkill: {fileID: 0}
   dodgeSkill: {fileID: 0}

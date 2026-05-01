@@ -1,8 +1,8 @@
 {
-    "name": "Elyqara.Characters",
-    "rootNamespace": "Elyqara.Characters",
+    "name": "Elyqara.Skills",
+    "rootNamespace": "Elyqara.Skills",
     "references": [
-        "Elyqara.Skills"
+        "Unity.Netcode.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

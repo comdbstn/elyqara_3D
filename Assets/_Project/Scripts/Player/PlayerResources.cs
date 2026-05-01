@@ -1,11 +1,12 @@
 using Unity.Netcode;
 using UnityEngine;
 using Elyqara.Characters;
+using Elyqara.Skills;
 
 namespace Elyqara.Player
 {
     [RequireComponent(typeof(PlayerCharacterBinder))]
-    public sealed class PlayerResources : NetworkBehaviour
+    public sealed class PlayerResources : NetworkBehaviour, IDamageable
     {
         public NetworkVariable<float> Health = new(
             writePerm: NetworkVariableWritePermission.Server);

@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 2017324058868671508}
   - component: {fileID: 2521217876119032149}
   - component: {fileID: 1129873617590897716}
+  - component: {fileID: 7245910775911093702}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -253,6 +254,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Elyqara.Networking::Elyqara.Networking.PlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
   moveSpeed: 5
+  lookSensitivity: 0.15
 --- !u!114 &5227780567408600354
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -311,6 +313,19 @@ MonoBehaviour:
   vCam: {fileID: 377185379926840978}
   activePriority: 100
   inactivePriority: 0
+--- !u!114 &7245910775911093702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2893178756320769477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 919bad67ef0e84dd397d54d9f76d440a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Elyqara.Player::Elyqara.Player.PlayerSkillExecutor
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &7238867433792234707
 GameObject:
   m_ObjectHideFlags: 0

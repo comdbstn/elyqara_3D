@@ -41,11 +41,12 @@
 ### 새 기능 추가 SOP
 
 1. 사용자 요구 받음
-2. **관련 카테고리 grep** — "비슷한 거 이미 있나?"
-3. **인터페이스/매니저 확인** — "이 카테고리는 어떻게 굴러가지?"
-4. 옛 패턴 따라서 추가. 안 맞으면 "왜 안 맞는지" 보고하고 사용자 확인
-5. 데이터로 풀 수 있으면 코드 추가 0줄로 끝
-6. 메모리 갱신 + 시스템 인덱스 한 줄 추가
+2. **외부 자료 검색** — 표준 패턴 (3인칭 카메라 / AI / 인벤 / 네트워킹 등) 은 WebSearch 또는 Explore 로 한 번 검증된 코드 검색. 키워드: "Unity 6000.3 + [기능] + Netcode for GameObjects" / "Cinemachine 3.x + [기능]". 검증된 패턴 발견 시 우선 적용 (사용자 직인 2026-05-02)
+3. **관련 카테고리 grep** — "비슷한 거 이미 있나?"
+4. **인터페이스/매니저 확인** — "이 카테고리는 어떻게 굴러가지?"
+5. 옛 패턴 따라서 추가. 안 맞으면 "왜 안 맞는지" 보고하고 사용자 확인
+6. 데이터로 풀 수 있으면 코드 추가 0줄로 끝
+7. 메모리 갱신 + 시스템 인덱스 한 줄 추가
 
 ### 패키지 추가 SOP (2026-05-01 Facepunch 폭발에서 학습)
 
@@ -192,6 +193,7 @@ public class AttackProperty {
 ### 현재 상태 (2026-05-01)
 - **단계 1 ✅** "둘이 같이 움직임"
 - **단계 2 ✅** "캐릭터 슬롯/자원 그릇 완성" — MPPM 두 캡슐 + 어깨 너머 카메라 + owner 분리 통과
+- **단계 3 ✅** "혼자 적 한 마리 잡는 게 재밌음" — Wisp 좌클릭 4회 사망 + Souls 톤 카메라 검증 통과. 사용자 직인 *"저것까지 제대로 작동하네"*
 - **코드**: `Assets/_Project/Scripts/{Networking,Player,Characters}/` (asmdef 3개 분리)
 - **프리팹**: `Player.prefab` (root: Capsule + Rigidbody + NetworkObject + NetworkTransform + NetworkRigidbody + PlayerMovement + PlayerInput + PlayerCharacterBinder + PlayerResources + PlayerCamera) + 자식 `vCam` (CinemachineCamera + ThirdPersonFollow)
 - **씬**: `SampleScene` 에 `[Network]` (NetworkManager + UnityTransport + NetworkBootstrap) + `Ground` Plane + Main Camera 에 CinemachineBrain
@@ -245,8 +247,8 @@ public class AttackProperty {
 - **네트워킹** ✅ 단계 1+2: `Elyqara.Networking` asmdef. `NetworkBootstrap` (Host/Client/Server OnGUI + UnityTransport 자동 link + PlayMode Stop 시 강제 Shutdown hook). 단계 2부터 PlayerMovement 는 Player asmdef 로 이동 — Networking 은 진짜 인프라(트랜스포트/부트스트랩)만. (단계 1 후) SteamLobbyService 추가 예정
 - **플레이어** ✅ 단계 2: `Elyqara.Player` asmdef. `PlayerInput` (Move/Look + 4슬롯 InputAction, Owner-only enable). `PlayerMovement : NetworkBehaviour` (IsOwner 입력 → ServerRpc → 호스트 Rigidbody.linearVelocity → NetworkTransform 동기화). `PlayerResources : NetworkBehaviour` (NetworkVariable<float> Health/Stamina, 호스트 권위, regen). `PlayerCamera : NetworkBehaviour` (vCam SetParent(null) 분리 + Priority.Value 명시). `PlayerCharacterBinder` (CharacterData ref 한 줄 컴포넌트)
 - **캐릭터** ✅ 단계 2: `Elyqara.Characters` asmdef. `CharacterData : ScriptableObject` (HP/Stamina + 4 슬롯). 새 캐릭 추가 = SO 한 장 + Player.prefab 의 PlayerCharacterBinder.character 한 줄 변경. 첫 캐릭 = Kiyan.asset
-- **적**: IEnemy + EnemyManager. 새 적 = ScriptableObject 한 장 (단계 3)
-- **스킬**: ISkill + SkillManager (단계 5+ 슬롯 채움)
+- **적** ✅ 단계 3: `Elyqara.Enemies` asmdef. `IEnemy` + `EnemyData : ScriptableObject` (HP/속도/어그로/공격 데이터) + `EnemyController : NetworkBehaviour` FSM 3상태 (Idle/Chase/Attack with windup) + `EnemySpawner` (Host 시작 시 1마리 spawn). 새 적 추가 = SO 한 장 + prefab 한 장 + NetworkPrefabsList 자동 등록. 첫 적 = `Wisp.asset` (HP 120). 단계 4 멀티에서 다중 spawn 시 EnemyManager 로 승격
+- **스킬** ✅ 단계 3: `Elyqara.Skills` asmdef. `ISkill` + `SkillData : ScriptableObject, ISkill` (추상) + `BasicMeleeSkill` (구체 — 콘 hitbox 데미지) + `IDamageable` (Player/Enemy 둘 다 구현). 새 스킬 = SkillData 상속 SO 한 장. `PlayerSkillExecutor` 가 4슬롯 입력 → `SkillData.ActivateOnServer` 호출. 첫 스킬 = `BasicMelee.asset`
 - **아이템**: IItem + InventoryManager (Elyqara 그리드 차용 — 단계 7)
 - **던전**: GridMapGenerator → GridDungeonBuilder → GridRoomManager (Elyqara 패턴 — 단계 5/6)
 - **공격 속성**: AttackProperty 데이터 구조. 캐릭/무기/스킬/효과가 참조 (단계 5+)
@@ -409,3 +411,19 @@ public class AttackProperty {
 - **권한 게이트 제거**: `.claude/settings.json` 의 모든 ask → allow. deny 는 후처리 불가능한 destructive 만 (rm -rf, git reset --hard, push --force, branch -D 등). 사용자 결정 — review 능력 부재로 ask 마찰 무의미. **Claude self-discipline 가중** (9 원칙 + SOP 자동 self-check)
 - **Server 버튼 유지 결정**: NetworkBootstrap 의 Server 버튼은 의도적 유지. 다음 세션이 다시 빼라고 제안 X. 단계 후반 로비 UI 만들면 자연 제거됨
 - **HANDOFF.md 삭제**: 단계 1 직전 상태 인계 문서. 쓰임 다 함
+
+### 2026-05-02 단계 3 통과 + 외부 자료 활용 원칙 박힘
+- **단계 3 ✅** "혼자 적 한 마리 잡는 게 재밌음" — Wisp 좌클릭 4회 사망 + Souls 톤 카메라 검증 통과
+- **사용자 직인**: *"저것까지 제대로 작동하네"*
+- **외부 자료 활용 원칙 박힘** (사용자 직인 2026-05-02): *"이런 3인칭 카메라 뷰같은것들은 인터넷이나 깃에도 코드있을것같은데 앞으로 개발할때는 인터넷 자료들 최대한 활용하면서 가자"*
+- 새 SOP 단계 2 (외부 자료 검색) 추가. 표준 패턴은 인터넷 검증된 코드 우선
+- **카메라 fix 핵심 학습**:
+  - CM 3.x `CinemachineThirdPersonFollow` extension 이 NetworkBehaviour + SetParent(null) 환경에서 Tracking Target *위치도 회전도* 추적 안 됨. 자체 진단 시간 폭발 (외부 자료 검색 안 한 손실)
+  - 정공: `PlayerCamera` 가 LateUpdate 에서 vCam.transform 직접 박는 패턴 (yaw = Player.yaw / pitch = 마우스 Y 자체 누적). ThirdPersonFollow 컴포넌트 disable 안전망
+  - Souls 톤 값: distance 5.5 / vertical 1.6 / horizontal 0 / pitch -10~50 / pitchSensitivity 0.1
+- **InputSystem 함정 학습**:
+  - Mouse delta read 시 `InputActionType.Value` 가 ReadValue 0 read 하는 케이스 — `InputActionType.PassThrough` + `expectedControlType: "Vector2"` 가 표준
+- **NGO 환경 함정**:
+  - UnityTransport 의 PlayMode Stop 시 7777 UDP socket 좀비 — `NetworkManager.Shutdown(true)` 도 native release 못 함. **Unity Editor 재시작이 환경 정공**. NetworkBootstrap PlayMode-stop hook 박혀있어도 NGO 한계
+  - MPPM Player 2 코드 변경 자동 reload 안 받음 — 변경 후 OFF/ON 토글 필수
+- **백로그**: vCam prefab 의 ThirdPersonFollow 컴포넌트 자체 제거 (현재 disable 안전망). MCP 부활 시 처리
