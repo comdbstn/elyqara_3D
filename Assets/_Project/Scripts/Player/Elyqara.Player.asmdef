@@ -1,9 +1,13 @@
 {
-    "name": "Elyqara.Networking",
-    "rootNamespace": "Elyqara.Networking",
+    "name": "Elyqara.Player",
+    "rootNamespace": "Elyqara.Player",
     "references": [
         "Unity.Netcode.Runtime",
-        "Unity.Networking.Transport"
+        "Unity.Netcode.Components",
+        "Unity.Networking.Transport",
+        "Unity.InputSystem",
+        "Unity.Cinemachine",
+        "Elyqara.Characters"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

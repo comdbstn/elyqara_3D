@@ -1,51 +1,37 @@
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
-namespace Elyqara.Networking
+namespace Elyqara.Player
 {
     [RequireComponent(typeof(Rigidbody))]
+    [RequireComponent(typeof(PlayerInput))]
     public sealed class PlayerMovement : NetworkBehaviour
     {
         [SerializeField] private float moveSpeed = 5f;
 
         private Rigidbody _rigidbody;
-        private InputAction _moveAction;
-        private Vector2 _inputBuffer;
+        private PlayerInput _input;
 
         private void Awake()
         {
             _rigidbody = GetComponent<Rigidbody>();
-
-            _moveAction = new InputAction("Move", InputActionType.Value);
-            _moveAction.AddCompositeBinding("2DVector")
-                .With("Up", "<Keyboard>/w")
-                .With("Down", "<Keyboard>/s")
-                .With("Left", "<Keyboard>/a")
-                .With("Right", "<Keyboard>/d");
-            _moveAction.AddBinding("<Gamepad>/leftStick");
+            _input = GetComponent<PlayerInput>();
         }
 
         public override void OnNetworkSpawn()
         {
-            if (IsOwner) _moveAction.Enable();
+            if (IsOwner) _input.EnableAll();
         }
 
         public override void OnNetworkDespawn()
         {
-            if (IsOwner) _moveAction.Disable();
-        }
-
-        private void Update()
-        {
-            if (!IsOwner) return;
-            _inputBuffer = _moveAction.ReadValue<Vector2>();
+            if (IsOwner) _input.DisableAll();
         }
 
         private void FixedUpdate()
         {
             if (!IsOwner) return;
-            SubmitMoveServerRpc(_inputBuffer);
+            SubmitMoveServerRpc(_input.Move);
         }
 
         [ServerRpc]

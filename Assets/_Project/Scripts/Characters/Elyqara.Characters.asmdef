@@ -1,10 +1,7 @@
 {
-    "name": "Elyqara.Networking",
-    "rootNamespace": "Elyqara.Networking",
-    "references": [
-        "Unity.Netcode.Runtime",
-        "Unity.Networking.Transport"
-    ],
+    "name": "Elyqara.Characters",
+    "rootNamespace": "Elyqara.Characters",
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

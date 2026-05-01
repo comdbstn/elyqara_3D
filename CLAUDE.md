@@ -21,7 +21,7 @@
 
 **핵심 원흉**: 클로드가 새 기능 추가할 때 옛 코드 안 보고 옆에 새 시스템 만든 것. 같은 카테고리 기능이 여러 패턴으로 흩어져서 코드 카오스 → 사용자 갈피 잃음 → 중단.
 
-### 9 원칙
+### 10 원칙
 
 1. **★ 옛 코드 우선 확인** — 새 기능 추가 전 같은 카테고리 기존 코드 grep/Read 강제. "이미 있는 패턴이 뭐지?" 자문하고 못 찾으면 사용자에게 묻기. 옛 코드 무시는 금지
 2. **단일 매니저** — 카테고리당 매니저 1개 (적/스킬/아이템/UI/방 등). 새 기능은 그 안에 들어감. 옆에 새 매니저 만들지 말 것
@@ -32,6 +32,11 @@
 7. **컨벤션 일관성** — 한 번 정한 패턴은 모든 비슷한 케이스에서 동일하게. "예외" 만들지 말 것
 8. **YAGNI** — 지금 안 쓰는 추상화/헬퍼/유틸리티 만들지 말 것. 3번 같으면 그때 추출
 9. **단일 책임** — 한 파일/클래스가 한 가지만. Elyqara에서 폭발한 신 클래스(StageManager 등) 패턴 반복 금지
+10. **★ 정공법 우선 — 빠른 회피 옵션 제시 금지** (사용자 직인 2026-05-01: *"무조건 정공법으로 가 빠른건 그냥 배재해 장기프로젝트야 미래에 어떤 문제도 되지않게 정공법을 기본으로 박아"*)
+    - 마찰/문제 만나면 **근본 원인 처리 + 재발 방지 hook 까지가 한 단위.** "임시 회피" / "일단 빠르게" / "지금만 그렇게" — 모두 장기 부채. 금지
+    - "방법 A 빠르게 / 방법 B 클린하게" 두 옵션 제시 X — **클린 옵션만 제시.** 사용자가 시간/체력 부족하면 *작업 중단* 이 답. *회피* X
+    - 환경 문제도 동일 — "Editor 재시작이 정공" 같은 안내가 회피 아닌 정공이면 그것만 제시. 단 가능하면 코드 레벨 hook 으로 자동화
+    - YAGNI(#8) 와 충돌 X. YAGNI = 안 쓰는 추상화 금지. 정공법 = 쓰는 코드의 정합성/재발 방지
 
 ### 새 기능 추가 SOP
 
@@ -185,11 +190,13 @@ public class AttackProperty {
 > 새 시스템 추가될 때마다 한 줄 추가. 새 세션 클로드가 빠르게 파악 가능하도록.
 
 ### 현재 상태 (2026-05-01)
-- **단계 1 ✅ 완료** — "둘이 같이 움직임" 검증 통과 (MPPM 로 host+client 동기화 확인)
-- **코드**: `Assets/_Project/Scripts/Networking/` (asmdef + NetworkBootstrap + PlayerMovement)
-- **프리팹**: `Assets/_Project/Prefabs/Networking/Player.prefab` (Capsule + Rigidbody + NetworkObject + NetworkTransform + NetworkRigidbody + PlayerMovement)
-- **씬**: `SampleScene` 에 `[Network]` (NetworkManager + UnityTransport + NetworkBootstrap) + `Ground` Plane
-- **폴더 스켈레톤**: `Assets/_Project/{Scripts/Networking,Data,Prefabs/Networking,Scenes,Settings,Art,Audio}/`
+- **단계 1 ✅** "둘이 같이 움직임"
+- **단계 2 ✅** "캐릭터 슬롯/자원 그릇 완성" — MPPM 두 캡슐 + 어깨 너머 카메라 + owner 분리 통과
+- **코드**: `Assets/_Project/Scripts/{Networking,Player,Characters}/` (asmdef 3개 분리)
+- **프리팹**: `Player.prefab` (root: Capsule + Rigidbody + NetworkObject + NetworkTransform + NetworkRigidbody + PlayerMovement + PlayerInput + PlayerCharacterBinder + PlayerResources + PlayerCamera) + 자식 `vCam` (CinemachineCamera + ThirdPersonFollow)
+- **씬**: `SampleScene` 에 `[Network]` (NetworkManager + UnityTransport + NetworkBootstrap) + `Ground` Plane + Main Camera 에 CinemachineBrain
+- **데이터**: `Assets/_Project/Data/Characters/Kiyan.asset` (첫 캐릭 SO. 슬롯 4개 비어있음)
+- **폴더 스켈레톤**: `Assets/_Project/{Scripts/{Networking,Player,Characters},Data/Characters,Prefabs/Networking,Scenes,Settings,Art,Audio}/`
 - **GitHub**: `https://github.com/comdbstn/elyqara_3D` main 브랜치
 - **Steam AppID**: 480 (Spacewar) — dev 테스트용. 실제 출시 전 교체 필수
 - **MCP**: CoplayDev/unity-mcp 9.6.8 등록 완료. `claude mcp list` 결과 = `unity-mcp: http://127.0.0.1:8080/mcp (HTTP) - ✓ Connected`. Unity 켜져있는 동안만 작동 (서버가 Unity 안에서 돌아감). 첫 도구 호출 전 항상 `claude mcp list` 로 검증 권장
@@ -235,19 +242,20 @@ public class AttackProperty {
 ### 카테고리별 인덱스 (단계 진행하면서 채움)
 > 형식: **카테고리**: 인터페이스 + 매니저 + 데이터 패턴
 
-- **네트워킹** ✅ 단계 1: `Elyqara.Networking` asmdef. `NetworkBootstrap` (Host/Client/Server OnGUI + UnityTransport 자동 link). `PlayerMovement : NetworkBehaviour` (IsOwner 입력 → ServerRpc → 호스트 Rigidbody.linearVelocity → NetworkRigidbody+NetworkTransform 동기화). Player.prefab 자동 등록 (DefaultNetworkPrefabs.asset). 네트워크 신기능 모두 이 asmdef 안. (단계 1 후) SteamLobbyService 추가 예정
-- **캐릭터**: ICharacter + CharacterManager. 무기는 캐릭터별 고정
-- **적**: IEnemy + EnemyManager. 새 적 = ScriptableObject 한 장
-- **스킬**: ISkill + SkillManager (백로그)
-- **아이템**: IItem + InventoryManager (Elyqara 그리드 차용)
-- **던전**: GridMapGenerator → GridDungeonBuilder → GridRoomManager (Elyqara 패턴)
-- **공격 속성**: AttackProperty 데이터 구조. 캐릭/무기/스킬/효과가 참조
+- **네트워킹** ✅ 단계 1+2: `Elyqara.Networking` asmdef. `NetworkBootstrap` (Host/Client/Server OnGUI + UnityTransport 자동 link + PlayMode Stop 시 강제 Shutdown hook). 단계 2부터 PlayerMovement 는 Player asmdef 로 이동 — Networking 은 진짜 인프라(트랜스포트/부트스트랩)만. (단계 1 후) SteamLobbyService 추가 예정
+- **플레이어** ✅ 단계 2: `Elyqara.Player` asmdef. `PlayerInput` (Move/Look + 4슬롯 InputAction, Owner-only enable). `PlayerMovement : NetworkBehaviour` (IsOwner 입력 → ServerRpc → 호스트 Rigidbody.linearVelocity → NetworkTransform 동기화). `PlayerResources : NetworkBehaviour` (NetworkVariable<float> Health/Stamina, 호스트 권위, regen). `PlayerCamera : NetworkBehaviour` (vCam SetParent(null) 분리 + Priority.Value 명시). `PlayerCharacterBinder` (CharacterData ref 한 줄 컴포넌트)
+- **캐릭터** ✅ 단계 2: `Elyqara.Characters` asmdef. `CharacterData : ScriptableObject` (HP/Stamina + 4 슬롯). 새 캐릭 추가 = SO 한 장 + Player.prefab 의 PlayerCharacterBinder.character 한 줄 변경. 첫 캐릭 = Kiyan.asset
+- **적**: IEnemy + EnemyManager. 새 적 = ScriptableObject 한 장 (단계 3)
+- **스킬**: ISkill + SkillManager (단계 5+ 슬롯 채움)
+- **아이템**: IItem + InventoryManager (Elyqara 그리드 차용 — 단계 7)
+- **던전**: GridMapGenerator → GridDungeonBuilder → GridRoomManager (Elyqara 패턴 — 단계 5/6)
+- **공격 속성**: AttackProperty 데이터 구조. 캐릭/무기/스킬/효과가 참조 (단계 5+)
 
 ---
 
 ## Unity MCP + Claude Code 워크플로우 (커뮤니티 검증 패턴)
 
-> "옛 코드 우선 확인" 9 원칙을 도구 호출 순서로 박은 SOP. 단계마다 빼먹지 말 것.
+> "옛 코드 우선 확인" 10 원칙을 도구 호출 순서로 박은 SOP. 단계마다 빼먹지 말 것.
 
 ```
 1. SEARCH (9 원칙 #1)
@@ -360,6 +368,8 @@ public class AttackProperty {
 - [ ] 새 기능이 데이터 추가로 끝나는가? (★)
 - [ ] 단일 매니저 / 인터페이스 우선 지켜졌나? (★)
 - [ ] 메모리 즉시 갱신 했나? (★)
+- [ ] 빠른 회피 옵션 제시했나? (★) — 클린 옵션만 제시. "임시" 우회 박힌 코드/설정 없는지 확인
+- [ ] 마찰 만난 부분에 재발 방지 hook 박혔나? (★)
 
 ---
 
@@ -381,6 +391,17 @@ public class AttackProperty {
 - **마일스톤**: 11단계 코어 검증 (옛 M1~M10 폐기)
 - **시간 단위 X**: 순서로만 표기
 - **절대 원칙**: 9 원칙 + SOP (옛 코드 우선 / 단일 매니저 / 인터페이스 우선 / 데이터 주도 / 환상 금지)
+
+### 2026-05-01 단계 2 통과 + 정공법 우선 원칙 박힘
+- **단계 2 ✅** "캐릭터 슬롯/자원 그릇 완성" — MPPM 두 캡슐 + 어깨 너머 카메라 + owner 분리 + 콘솔 0/0/0 통과
+- **카테고리 추가 (asmdef 분리)**: `Elyqara.Characters` (CharacterData SO 그릇), `Elyqara.Player` (Input/Movement/Resources/Camera/CharacterBinder). `Elyqara.Networking` 은 NetworkBootstrap 만 남기고 슬림화 (네트워크 인프라 책임)
+- **첫 캐릭**: `Assets/_Project/Data/Characters/Kiyan.asset` — HP 100, Stamina 100, regen 15/sec, 슬롯 4개(primary/secondary/qSkill/dodge) 비어있음. **새 캐릭 추가 = SO 한 장 옆에 + Player.prefab 의 PlayerCharacterBinder.character 한 줄 변경**
+- **스킬 슬롯 입력 바인딩 (사용자 직인)**: 마우스 좌클릭 = primary, 마우스 우클릭 = secondary, Q = qSkill, Space = dodge. 동작 구현 X (단계 5+ ISkill 정의 시 채움)
+- **카메라**: Cinemachine 3 어깨 너머. vCam 은 Player 자식이지만 OnNetworkSpawn 에서 `SetParent(null)` 로 분리 (부모 transform 변환 + ThirdPersonFollow 자체 계산 이중 적용 방지). Priority 는 PrioritySettings struct 의 `.Value` 명시 박기. ShoulderOffset (0.5, 0.2, 0) / VerticalArmLength 0.4 / CameraSide 1 / CameraDistance 4
+- **함정 학습**: NGO UnityTransport 의 PlayMode Stop 시 UDP socket 좀비 — `NetworkManager.Shutdown(true)` 도 native socket release 못 하는 케이스. NetworkBootstrap 에 EditorApplication.playModeStateChanged 콜백으로 강제 정리 hook 박음. 좀비 발생 시 Editor 재시작이 환경 레벨 정공
+- **★ 절대 원칙 #10 정공법 우선 박힘** (사용자 직인): *"무조건 정공법으로 가 빠른건 그냥 배재해 장기프로젝트야 미래에 어떤 문제도 되지않게 정공법을 기본으로 박아"* / *"가자 나한테 확인해줄거 말하면 무조건 내가 해줄게 난 너 믿고 너도 나 믿지?"*
+- 직전 트리거: 7777 socket 좀비 만나서 클로드가 "방법 A 빠르게(7778 임시) / 방법 B 클린하게(Editor 재시작)" 두 옵션 제시 → 사용자 거부. 7778 임시 변경 → 7777 복구 + cleanup hook 박는 정공으로 회귀
+- 검증 룰 박힘: 매 단계 명제는 사용자가 직접 플레이 검증 후 직인. 클로드는 "확인해줄거" 명시하면 사용자가 검증 응답. 검증 통과 전 다음 단계 진입 금지
 
 ### 2026-05-01 단계 1 통과 + 권한 모델 변경
 - **단계 1 ✅** "둘이 같이 움직임" MPPM 검증 통과. 사용자 직인 "ㅈㄴ만족함"
