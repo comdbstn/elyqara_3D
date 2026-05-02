@@ -61,6 +61,7 @@ namespace Elyqara.Player
         private void TryActivate(int slotIndex)
         {
             if (!IsOwner) return;
+            if (_resources != null && _resources.IsDown.Value) return;  // 다운 시 스킬 차단
             CharacterData ch = _binder.Character;
             if (ch == null) return;
 

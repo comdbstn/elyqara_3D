@@ -113,8 +113,8 @@ public class AttackProperty {
 | 6 | 던전 확장 (직접 맵핑 7-room + Door socket 정렬) | "한 런 길이 감" | ✅ |
 | 7 | 빌드 시스템 (Elyqara 그리드 인벤토리 차용 + F키 픽업) | "적 잡으면 뭔가 떨어짐" | ✅ |
 | 8 | 자유 픽업 드랍 — 4명 검증 (코드 X, 단계 11 합쳐질 가능성) | "협동의 본질이 굴러감" | |
-| 9 | 다운/부활 + 데미지 파이프라인 | "한 명 죽어도 끝 아님" | 🟢 다음 |
-| 10 | 보스 + 한 런 사이클 | "한 런이 완전 굴러감" | |
+| 9 | 다운/부활 + 데미지 파이프라인 | "한 명 죽어도 끝 아님" | ✅ |
+| 10 | 보스 + 한 런 사이클 | "한 런이 완전 굴러감" | 🟢 다음 |
 | **11** | **🎯 코어 검증 플레이테스트 (친구 4명)** | "재밌는가? 다시 하고 싶은가?" | |
 
 ### 코어 검증 통과 후 (큰 그림만)
@@ -156,8 +156,10 @@ public class AttackProperty {
 ## 시스템 인덱스 — 현재 상태 (2026-05-02)
 
 - **단계 1~6 ✅** 통과 (상세 결정 + 사용자 직인 → `docs/decisions.md`)
-- **현재 상태**: 단계 6 통과 — 7-room 던전 mesh 정렬 + Editor 도구 3장. 단계 7 (빌드 시스템) 진입 준비
-- **코드 폴더**: `Assets/_Project/Scripts/{Networking,Player,Characters,Enemies,Skills,Dungeon}/` (asmdef 6개 분리) + `Assets/_Project/Editor/{Phase6Setup,RoomSnapTool,DungeonGenerator}.cs`
+- **현재 상태**: 단계 9 통과 — 다운/부활 + 데미지 파이프라인 + 인벤 효과 적용. 단계 10 (보스 + 한 런 사이클) 진입 준비
+- **단계 7 ✅** "적 잡으면 뭔가 떨어짐" — `Elyqara.Items` asmdef + 11 .cs + Phase7Setup. F키 픽업 + 4×6 그리드. 사용자 *"4명 분배 X 먼저 먹는 사람"* (자유 경쟁 = 협동 본질). 사용자 직인 *"좋아 모두 정상작동해"*. NGO auto-populate 학습
+- **단계 9 ✅** "한 명 죽어도 끝 아님" — Boss Room 패턴. `Elyqara.Game` asmdef + 5 .cs + 6 수정. IsDown NetworkVariable + E키 2초 hold 부활 + GameOver UI + BasicMeleeSkill Inventory.GetTotalEffect 적용. 사용자 직인 *"부활은 정상적으로 돼"* + *"응 좋아 정상적으로 표시되는것같아"*
+- **코드 폴더**: `Assets/_Project/Scripts/{Networking,Player,Characters,Enemies,Skills,Dungeon,Items,Game}/` (asmdef 8개 분리) + `Assets/_Project/Editor/{Phase6Setup,RoomSnapTool,DungeonGenerator,Phase7Setup,Phase9Setup}.cs`
 - **씬**: `SampleScene` 에 `[Network]` (NetworkBootstrap) + `[DungeonManager]` + StartRoom + Room_N/E/S/W/E2/E3 + Main Camera (CinemachineBrain)
 - **데이터**: `Assets/_Project/Data/Characters/Kiyan.asset` + `Assets/_Project/Data/Rooms/{StartRoom,Room_N,...}Data.asset`
 - **GitHub**: `https://github.com/comdbstn/elyqara_3D` main 브랜치
@@ -172,8 +174,10 @@ public class AttackProperty {
 - **적** ✅: `Elyqara.Enemies` asmdef. `IEnemy` + `EnemyData : ScriptableObject` (HP/속도/어그로/4-phase attack/stopping distance/콘 hitbox) + `EnemyController : NetworkBehaviour` **Souls-like 6-state FSM** (Idle/Chase/Anticipation/Active/Recovery/Dead) + Transition() 단일 진입점 + 4-phase attack + Stopping Distance + 콘 OverlapSphere hitbox. 첫 적 = `Wisp.asset`. `EnemySpawner` 호스트 시작 시 1마리 (Phase 5+ StartRoom prefab 자식)
 - **스킬** ✅: `Elyqara.Skills` asmdef. `ISkill` + `SkillData : ScriptableObject, ISkill` (추상) + `BasicMeleeSkill` (구체) + `IDamageable` (Player/Enemy 둘 다 구현). 첫 스킬 = `BasicMelee.asset`
 - **던전** ✅: `Elyqara.Dungeon` asmdef. `IRoom` + `DoorDirection` enum (N/E/S/W) + `RoomData : SO` (isStartRoom flag) + `Room : MonoBehaviour, IRoom` (4 door socket + spawnPoints[] + OnEnable self-register + Editor Gizmos N/E/S/W 색깔 라벨) + `DungeonManager` (Singleton) + `PlayerSpawnPositioner : NetworkBehaviour` (server-side OnNetworkSpawn 시 transform.position 설정 — NGO 2.x ConnectionApproval 버그 회피). **방 = StartRoom + 6개 복제** mesh 끼리 직접 정렬 (절차생성/통로 X). Editor 도구 = `Phase6Setup` (one-shot setup) + `RoomSnapTool` (Cmd+Alt+S) + `DungeonGenerator` (7-room)
-- **아이템** 🟢 단계 7: IItem + InventoryManager + ItemData SO + 적 죽음 → ItemDrop 파이프라인. Elyqara 2D read-only 참조 → `docs/elyqara-2d-ref.md`
-- **공격 속성**: AttackProperty 데이터 구조 (위 정의)
+- **아이템** ✅ 단계 7: `Elyqara.Items` asmdef. `IItem` + `ItemData : SO` (itemName/icon/gridSize/effects[]) + `ItemEffect` (SlashDamageBonus/BluntDamageBonus enum + struct) + `ItemDatabase : SO` (Resources/ Singleton — Spawn 동기화용 인덱스 lookup) + `ItemSlot` struct (INetworkSerializable + IEquatable) + `DropTableData : SO` (가중치 Roll) + `DroppedItem : NetworkBehaviour` (NetworkVariable<int> 인덱스 동기화) + `ItemSpawner` static (호스트 권위) + `Inventory : NetworkBehaviour` (NetworkList<ItemSlot> 4×6 + GetTotalEffect) + `InventoryUI` Singleton (uGUI 그리드, transform.Find Icon 정확 lookup, count<=1 시 itemName 폴백). 효과 적용 = 단계 9 BasicMeleeSkill 호출 시 곱
+- **플레이어 (확장 단계 7+9)**: `Elyqara.Player` 추가 — `PlayerPickup` (F키 픽업, 분배 X) + `PlayerInventoryBinder` (I키 토글) + `PlayerRevive` (E키 2초 hold 부활). PlayerResources 에 `IsDown : NetworkVariable<bool>` + `ReviveServer(hp)`. PlayerMovement/SkillExecutor 가 IsDown 체크
+- **공격 속성**: AttackProperty 데이터 구조 (위 정의). 1차 = `Elyqara.Items` 안 `ItemEffectType` (SlashDamageBonus/BluntDamageBonus). 단계 12+ `Combat` asmdef 분리 가능
+- **게임 상태** ✅ 단계 9: `Elyqara.Game` asmdef. `GameStateManager : NetworkBehaviour` Singleton (씬 placed NetworkObject) — 호스트 polling 0.5초 간격 모든 PlayerResources.IsDown 감지 → `IsGameOver` NetworkVariable. `GameOverUI` polling 패널 토글. 단계 10 = `IsVictory` 보스 처치 시 set
 
 ---
 

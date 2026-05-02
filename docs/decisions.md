@@ -117,3 +117,18 @@
   - `feedback_no_pak_word.md` 갱신 — 완전 금지 X. 적당히 OK. 매 응답 / 매 문장 X. 빈도 룰 추가
 - **1차 ItemData 풀 (5장 균일 가중치)**: Sword (Slash +12%) / Shield (Blunt +12%) / Amulet_Slash (+18%) / Amulet_Blunt (+18%) / Ring (Slash + Blunt 둘 다 +6%)
 - **효과 적용 미루기**: `Inventory.GetTotalEffect` 메서드는 추가됨. BasicMeleeSkill 호출 시 곱 = 단계 9 본격 (데미지 파이프라인 시점)
+
+## 2026-05-02 단계 9 통과 — 다운/부활 + 데미지 파이프라인 + Boss Room 패턴
+- **단계 9 ✅** "한 명 죽어도 끝 아님" — Boss Room (Unity 공식 NGO sample) 패턴 차용
+- **사용자 직인**: *"부활은 정상적으로 돼"* + *"응 좋아 정상적으로 표시되는것같아"* (인벤 표시 fix 후)
+- **추가 코드**: `Elyqara.Game` asmdef 새 + 5 .cs (PlayerRevive/GameStateManager/GameOverUI/Phase9Setup) + 6 수정 (PlayerResources/Movement/SkillExecutor/Input/BasicMeleeSkill/Skills.asmdef)
+- **핵심 패턴**:
+  - 다운 ≠ Despawn — HP 0 시 `IsDown : NetworkVariable<bool>` true. 입력/물리 차단만. NetworkObject 유지
+  - Revive = E키 2초 hold (Souls-like 톤). Owner ServerRpc → 호스트 거리 재검증 → ReviveServer(maxHp * 50%)
+  - All-down 감지 = GameStateManager 호스트 polling 0.5초. 모든 PlayerResources.IsDown → IsGameOver = true
+  - 데미지 파이프라인 = `damage = base * (1 + Inventory.GetTotalEffect(damageType))`. Elyqara 2D DamageCalculator 의 풀 RPG (회피/크리/방어/감소) = 단계 12+ 콘텐츠 확장
+- **InventoryUI 표시 fix** (검증 도중 패치):
+  - root cause = `GetComponentInChildren<Image>()` 가 slot 배경 Image 잡음 (Icon child 가 아님)
+  - 정공 = `transform.Find("Icon")` 정확히 lookup + Icon null 시 placeholder 색깔 (회색 사각형) + count <= 1 시 itemName 폴백 표시
+- **씬 placed NetworkObject 패턴**: `[GameStateManager]` 가 NetworkObject + GameStateManager 박힘. NGO Scene Management 활성 시 자동 spawn. NetworkPrefabsList 등록 X (씬 placed)
+- **AttackProperty 위치 결정**: `Elyqara.Items` 안 `ItemEffectType` 유지 (YAGNI). 단계 12+ `Combat` asmdef 분리 가능

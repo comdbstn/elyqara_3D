@@ -5,6 +5,7 @@ namespace Elyqara.Player
 {
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(PlayerInput))]
+    [RequireComponent(typeof(PlayerResources))]
     public sealed class PlayerMovement : NetworkBehaviour
     {
         [SerializeField] private float moveSpeed = 5f;
@@ -12,12 +13,14 @@ namespace Elyqara.Player
 
         private Rigidbody _rigidbody;
         private PlayerInput _input;
+        private PlayerResources _resources;
         private float _yaw;
 
         private void Awake()
         {
             _rigidbody = GetComponent<Rigidbody>();
             _input = GetComponent<PlayerInput>();
+            _resources = GetComponent<PlayerResources>();
         }
 
         public override void OnNetworkSpawn()
@@ -34,6 +37,7 @@ namespace Elyqara.Player
         private void Update()
         {
             if (!IsOwner) return;
+            if (_resources != null && _resources.IsDown.Value) return;  // 다운 시 입력 차단
             float dx = _input.Look.x * lookSensitivity;
             if (Mathf.Abs(dx) > 0.0001f)
             {
@@ -45,6 +49,14 @@ namespace Elyqara.Player
         private void FixedUpdate()
         {
             if (!IsOwner) return;
+            if (_resources != null && _resources.IsDown.Value)
+            {
+                // 다운 시 정지
+                Vector3 frozen = _rigidbody.linearVelocity;
+                frozen.x = 0f; frozen.z = 0f;
+                _rigidbody.linearVelocity = frozen;
+                return;
+            }
             Vector2 input = _input.Move;
             // 입력 (x, y) 를 Player 의 forward/right 기준으로 변환 — yaw 회전 따라 이동 방향 회전
             Vector3 forward = Quaternion.Euler(0f, _yaw, 0f) * Vector3.forward;

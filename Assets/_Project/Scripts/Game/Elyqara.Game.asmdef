@@ -1,9 +1,9 @@
 {
-    "name": "Elyqara.Skills",
-    "rootNamespace": "Elyqara.Skills",
+    "name": "Elyqara.Game",
+    "rootNamespace": "Elyqara.Game",
     "references": [
         "Unity.Netcode.Runtime",
-        "Elyqara.Items"
+        "Elyqara.Player"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

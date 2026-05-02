@@ -14,6 +14,7 @@ namespace Elyqara.Player
         public InputAction DodgeAction => _dodgeAction;
         public InputAction PickupAction => _pickupAction;
         public InputAction InventoryAction => _inventoryAction;
+        public InputAction ReviveAction => _reviveAction;
 
         private InputAction _moveAction;
         private InputAction _lookAction;
@@ -23,6 +24,7 @@ namespace Elyqara.Player
         private InputAction _dodgeAction;
         private InputAction _pickupAction;
         private InputAction _inventoryAction;
+        private InputAction _reviveAction;
 
         private bool _isEnabled;
 
@@ -60,6 +62,10 @@ namespace Elyqara.Player
 
             _inventoryAction = new InputAction("Inventory", InputActionType.Button, "<Keyboard>/i");
             _inventoryAction.AddBinding("<Gamepad>/select");
+
+            // 단계 9 — 부활 (E 키 hold)
+            _reviveAction = new InputAction("Revive", InputActionType.Button, "<Keyboard>/e");
+            _reviveAction.AddBinding("<Gamepad>/buttonEast");
         }
 
         public void EnableAll()
@@ -73,6 +79,7 @@ namespace Elyqara.Player
             _dodgeAction.Enable();
             _pickupAction.Enable();
             _inventoryAction.Enable();
+            _reviveAction.Enable();
             _isEnabled = true;
         }
 
@@ -87,6 +94,7 @@ namespace Elyqara.Player
             _dodgeAction.Disable();
             _pickupAction.Disable();
             _inventoryAction.Disable();
+            _reviveAction.Disable();
             _isEnabled = false;
         }
 
@@ -100,6 +108,7 @@ namespace Elyqara.Player
             _dodgeAction?.Dispose();
             _pickupAction?.Dispose();
             _inventoryAction?.Dispose();
+            _reviveAction?.Dispose();
         }
     }
 }

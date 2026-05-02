@@ -26,6 +26,7 @@ GameObject:
   - component: {fileID: 4013541140604280187}
   - component: {fileID: 3782415223581348835}
   - component: {fileID: 3619027240156333216}
+  - component: {fileID: 4821315857164084716}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -301,6 +302,8 @@ MonoBehaviour:
     m_InternalValue: 0
   Stamina:
     m_InternalValue: 0
+  IsDown:
+    m_InternalValue: 0
 --- !u!114 &1129873617590897716
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -391,6 +394,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Elyqara.Player::Elyqara.Player.PlayerInventoryBinder
   ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &4821315857164084716
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2893178756320769477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10c1f51dde0444188ad6ec3004ffb2d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Elyqara.Player::Elyqara.Player.PlayerRevive
+  ShowTopMostFoldoutHeaderGroup: 1
+  reviveRange: 2.5
+  holdSeconds: 2
+  reviveHpPercent: 0.5
 --- !u!1 &7238867433792234707
 GameObject:
   m_ObjectHideFlags: 0

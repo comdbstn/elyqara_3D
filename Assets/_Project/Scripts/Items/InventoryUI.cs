@@ -64,8 +64,28 @@ namespace Elyqara.Items
             for (int i = 0; i < Inventory.SlotCount; i++)
             {
                 var go = Instantiate(slotPrefab, slotsParent);
-                _slotIcons[i] = go.GetComponentInChildren<Image>();
-                _slotCounts[i] = go.GetComponentInChildren<Text>();
+                // ★ root Image = slot 배경. Icon child 의 Image 정확히 lookup.
+                var iconTr = go.transform.Find("Icon");
+                _slotIcons[i] = iconTr != null ? iconTr.GetComponent<Image>() : null;
+
+                var countTr = go.transform.Find("Count");
+                _slotCounts[i] = countTr != null ? countTr.GetComponent<Text>() : null;
+
+                // count Text 를 슬롯 전체 영역 + 중앙 정렬 + 작은 폰트 — itemName 폴백 표시용
+                if (_slotCounts[i] != null)
+                {
+                    _slotCounts[i].alignment = TextAnchor.MiddleCenter;
+                    _slotCounts[i].fontSize = 12;
+                    _slotCounts[i].horizontalOverflow = HorizontalWrapMode.Wrap;
+                    var rt = _slotCounts[i].GetComponent<RectTransform>();
+                    if (rt != null)
+                    {
+                        rt.anchorMin = Vector2.zero;
+                        rt.anchorMax = Vector2.one;
+                        rt.offsetMin = new Vector2(2, 2);
+                        rt.offsetMax = new Vector2(-2, -2);
+                    }
+                }
             }
             _slotsBuilt = true;
         }
@@ -89,13 +109,39 @@ namespace Elyqara.Items
                 if (_slotIcons[i] != null)
                 {
                     _slotIcons[i].sprite = data != null ? data.icon : null;
-                    _slotIcons[i].enabled = data != null && data.icon != null;
+                    if (data != null && data.icon != null)
+                    {
+                        // 정상 icon
+                        _slotIcons[i].enabled = true;
+                        _slotIcons[i].color = Color.white;
+                    }
+                    else if (data != null)
+                    {
+                        // icon 미설정 = placeholder (회색 사각형)
+                        _slotIcons[i].enabled = true;
+                        _slotIcons[i].color = new Color(0.5f, 0.55f, 0.6f, 1f);
+                    }
+                    else
+                    {
+                        _slotIcons[i].enabled = false;
+                    }
                 }
                 if (_slotCounts[i] != null)
                 {
-                    _slotCounts[i].text = empty || slot.count <= 1 ? string.Empty : slot.count.ToString();
+                    if (empty || data == null) _slotCounts[i].text = string.Empty;
+                    else if (slot.count <= 1) _slotCounts[i].text = ShortName(data.itemName);
+                    else _slotCounts[i].text = $"{ShortName(data.itemName)} x{slot.count}";
                 }
             }
+        }
+
+        // 슬롯 안 표시할 짧은 이름. itemName 의 첫 단어 또는 12자 이내.
+        private static string ShortName(string fullName)
+        {
+            if (string.IsNullOrEmpty(fullName)) return string.Empty;
+            int underscore = fullName.IndexOf('_');
+            string head = underscore > 0 ? fullName.Substring(0, underscore) : fullName;
+            return head.Length > 12 ? head.Substring(0, 12) : head;
         }
     }
 }
