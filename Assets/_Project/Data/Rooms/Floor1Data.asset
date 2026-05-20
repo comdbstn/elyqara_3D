@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a4e627bbcecf460288021568af4befc, type: 3}
+  m_Name: Floor1Data
+  m_EditorClassIdentifier: Elyqara.Dungeon::Elyqara.Dungeon.DungeonGenerationData
+  gridWidth: 30
+  gridHeight: 30
+  cellSize: 8
+  roomCount: 6
+  minRoomSize: 4
+  maxRoomSize: 8
+  roomBuffer: 2
+  maxPlacementAttempts: 200
+  wallHeight: 8
+  wallThickness: 0.3
+  floorMaterial: {fileID: 2100000, guid: d8529644fb2284df4bf8aa903e3f8128, type: 2}
+  wallMaterial: {fileID: 2100000, guid: 6aabfd5b7976b4ddf86ebc97c3b45a30, type: 2}
+  placePointLights: 1
+  lightColor: {r: 1, g: 0.6, b: 0.3, a: 1}
+  lightRange: 8
+  lightIntensity: 1.5

@@ -28,6 +28,17 @@ namespace Elyqara.Dungeon
 
         public Transform[] GetSpawnPoints() => spawnPoints;
 
+        // 단계 13 — RuntimeDungeonGenerator 가 코드 생성 방에 setting. 호환 추가 method.
+        public void Setup(RoomData newData, Transform doorN, Transform doorE, Transform doorS, Transform doorW, Transform[] newSpawnPoints)
+        {
+            data = newData;
+            doorNorth = doorN;
+            doorEast = doorE;
+            doorSouth = doorS;
+            doorWest = doorW;
+            spawnPoints = newSpawnPoints;
+        }
+
         private void OnEnable()
         {
             DungeonManager.Register(this);

@@ -2,7 +2,10 @@
     "name": "Elyqara.Dungeon",
     "rootNamespace": "Elyqara.Dungeon",
     "references": [
-        "Unity.Netcode.Runtime"
+        "Unity.Netcode.Runtime",
+        "Elyqara.Enemies",
+        "Elyqara.Game",
+        "Unity.AI.Navigation"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
