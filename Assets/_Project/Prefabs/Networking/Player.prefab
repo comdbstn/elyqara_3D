@@ -27,6 +27,8 @@ GameObject:
   - component: {fileID: 3782415223581348835}
   - component: {fileID: 3619027240156333216}
   - component: {fileID: 4821315857164084716}
+  - component: {fileID: 5200922479129758369}
+  - component: {fileID: 2408699809043484141}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -328,6 +330,8 @@ MonoBehaviour:
   maxPitch: 50
   startPitch: 10
   invertY: 0
+  collisionRadius: 0.3
+  collisionOffset: 0.1
 --- !u!114 &7245910775911093702
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -410,6 +414,33 @@ MonoBehaviour:
   reviveRange: 2.5
   holdSeconds: 2
   reviveHpPercent: 0.5
+--- !u!114 &5200922479129758369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2893178756320769477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec17206a9972043bb9c5e173d61c766c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Elyqara.Player::Elyqara.Player.PlayerPersistence
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &2408699809043484141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2893178756320769477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e56b4001986424eafb21dedcecf84903, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Elyqara.Skills::Elyqara.Skills.KiyanShieldPassive
+  blockChance: 0.2
+  damageReduction: 0.5
 --- !u!1 &7238867433792234707
 GameObject:
   m_ObjectHideFlags: 0

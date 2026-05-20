@@ -16,10 +16,12 @@ namespace Elyqara.Enemies
     //   - 명시적 transition: Transition(AIState next) 한 곳에서만 _state 변경
     //   - Update = 로직 / FixedUpdate = 물리 (Rigidbody.linearVelocity)
     [RequireComponent(typeof(Rigidbody))]
-    public sealed class EnemyController : NetworkBehaviour, IEnemy, IDamageable
+    public sealed class EnemyController : NetworkBehaviour, IEnemy, IDamageable, IKnockable
     {
         [SerializeField] private EnemyData data;
-        [SerializeField] private bool logStateTransitions = true;
+        [SerializeField] private bool logStateTransitions = false;
+
+        public DamageFaction Faction => DamageFaction.Enemy;
 
         public EnemyData Data => data;
         public float CurrentHealth => _health.Value;
@@ -33,6 +35,7 @@ namespace Elyqara.Enemies
         private Transform _target;
         private float _phaseTimer;     // 현재 phase 잔여 시간
         private float _cooldownLeft;   // Recovery 끝 후 다음 Anticipation 까지 wait
+        private float _knockbackUntil; // 이 시간까지 ApplyMovement 가 외부 velocity 보존 (knockback 임펄스 살림)
 
         private Rigidbody _rigidbody;
 
@@ -43,21 +46,27 @@ namespace Elyqara.Enemies
 
         public override void OnNetworkSpawn()
         {
+#if UNITY_EDITOR
             _health.OnValueChanged += OnHealthChanged;
+#endif
             if (!IsServer) return;
             if (data != null) _health.Value = data.maxHealth;
         }
 
         public override void OnNetworkDespawn()
         {
+#if UNITY_EDITOR
             _health.OnValueChanged -= OnHealthChanged;
+#endif
         }
 
+#if UNITY_EDITOR
         private void OnHealthChanged(float prev, float now)
         {
             string side = IsServer ? "Host" : "Client";
-            Debug.Log($"[Wisp HP] {side}: {prev:F0} -> {now:F0}");
+            Debug.Log($"[{name} HP] {side}: {prev:F0} -> {now:F0}");
         }
+#endif
 
         public void ApplyDamageServer(float amount)
         {
@@ -93,7 +102,19 @@ namespace Elyqara.Enemies
         private void FixedUpdate()
         {
             if (!IsServer || _state == AIState.Dead) return;
+            if (Time.time < _knockbackUntil) return;  // knockback 중 = 외부 velocity 보존 (임펄스 효과 유지)
             ApplyMovement();
+        }
+
+        // IKnockable 구현. BasicMeleeSkill 등이 hit 후 호출.
+        // direction = 정규화된 방향 (호출자가 normalize 보장). 호스트만 effect.
+        public void ApplyKnockbackServer(Vector3 direction, float force, float duration)
+        {
+            if (!IsServer) return;
+            if (_state == AIState.Dead) return;
+            if (_rigidbody == null) return;
+            _rigidbody.AddForce(direction * force, ForceMode.Impulse);
+            _knockbackUntil = Time.time + duration;
         }
 
         // ==== Target ====
@@ -239,7 +260,9 @@ namespace Elyqara.Enemies
                 if (Vector3.Dot(forward, toT) < cosThreshold) continue;
 
                 IDamageable dmg = t.GetComponent<IDamageable>();
-                if (dmg != null) dmg.ApplyDamageServer(data.attackDamage);
+                if (dmg == null) continue;
+                if (dmg.Faction == DamageFaction.Enemy) continue;  // 단계 10 fix — FF off (적이 적 hit X)
+                dmg.ApplyDamageServer(data.attackDamage);
             }
         }
 

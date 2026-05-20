@@ -16,6 +16,12 @@ namespace Elyqara.Skills
         [Tooltip("이 스킬의 물리 속성. 1차 = Slash (검). owner.Inventory.GetTotalEffect 로 보너스 누적.")]
         [SerializeField] private ItemEffectType damageType = ItemEffectType.SlashDamageBonus;
 
+        [Header("Knockback (방패 강타 등)")]
+        [Tooltip("0 = 효과 X. 임펄스 힘. Blunt 액션용. IKnockable 대상만 적용 (1차 = Enemy).")]
+        [SerializeField] private float knockbackForce = 0f;
+        [Tooltip("Knockback 지속. 이 시간 동안 적 AI 의 ApplyMovement 가 velocity 보존")]
+        [SerializeField] private float knockbackDuration = 0.3f;
+
         public override void ActivateOnServer(GameObject owner)
         {
             if (owner == null) return;
@@ -25,6 +31,11 @@ namespace Elyqara.Skills
             var inventory = owner.GetComponent<Inventory>();
             if (inventory != null) bonus = inventory.GetTotalEffect(damageType);
             float finalDamage = damage * (1f + bonus);
+
+            // 단계 13-2 — Q 결전 buff 공격 보너스 적용
+            var buff = owner.GetComponent<TimedBuff>();
+            if (buff != null && buff.IsActive)
+                finalDamage *= (1f + buff.AttackBonus);
 
             Vector3 origin = owner.transform.position;
             Vector3 forward = owner.transform.forward;
@@ -46,7 +57,24 @@ namespace Elyqara.Skills
                 if (Vector3.Dot(forward, toTarget) < cosThreshold) continue;
 
                 IDamageable dmg = target.GetComponent<IDamageable>();
-                if (dmg != null) dmg.ApplyDamageServer(finalDamage);
+                if (dmg == null) continue;
+                if (dmg.Faction == DamageFaction.Player) continue;  // 단계 10 fix — FF off (Player → Player X)
+                dmg.ApplyDamageServer(finalDamage);
+
+                if (knockbackForce > 0f)
+                {
+                    var knockable = target.GetComponent<IKnockable>();
+                    if (knockable != null)
+                    {
+                        Vector3 knockDir = c.transform.position - origin;
+                        knockDir.y = 0f;
+                        if (knockDir.sqrMagnitude > 0.0001f)
+                        {
+                            knockDir.Normalize();
+                            knockable.ApplyKnockbackServer(knockDir, knockbackForce, knockbackDuration);
+                        }
+                    }
+                }
             }
         }
     }
