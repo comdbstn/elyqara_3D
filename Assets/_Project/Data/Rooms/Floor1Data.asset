@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Elyqara.Dungeon::Elyqara.Dungeon.DungeonGenerationData
   gridWidth: 50
   gridHeight: 50
-  cellSize: 8
+  cellSize: 4
   roomCount: 15
   minRoomSize: 3
   maxRoomSize: 14
@@ -24,11 +24,11 @@ MonoBehaviour:
   propPrefabs:
   - {fileID: 4138593848162077292, guid: e8447ad25d3334b718452c94c54b305d, type: 3}
   propRoomChance: 0.5
-  wallHeight: 8
+  wallHeight: 4
   wallThickness: 0.3
   floorMaterial: {fileID: 2100000, guid: d8529644fb2284df4bf8aa903e3f8128, type: 2}
   wallMaterial: {fileID: 2100000, guid: 6aabfd5b7976b4ddf86ebc97c3b45a30, type: 2}
   placePointLights: 1
   lightColor: {r: 1, g: 0.6, b: 0.3, a: 1}
-  lightRange: 8
+  lightRange: 4
   lightIntensity: 1.5

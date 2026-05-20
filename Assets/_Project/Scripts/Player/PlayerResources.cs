@@ -24,6 +24,7 @@ namespace Elyqara.Player
         public DamageFaction Faction => DamageFaction.Player;
 
         private PlayerCharacterBinder _binder;
+        private PlayerAnimator _animator;
         private CharacterData _data;
 
         public float MaxHealth => _data != null ? _data.maxHealth : 100f;
@@ -31,6 +32,7 @@ namespace Elyqara.Player
         private void Awake()
         {
             _binder = GetComponent<PlayerCharacterBinder>();
+            _animator = GetComponent<PlayerAnimator>();
         }
 
         public override void OnNetworkSpawn()
@@ -88,7 +90,10 @@ namespace Elyqara.Player
             if (shield != null) amount = shield.Modify(amount);
 
             Health.Value = Mathf.Max(0f, Health.Value - amount);
-            if (Health.Value <= 0f) IsDown.Value = true;
+            if (Health.Value <= 0f)
+                IsDown.Value = true;                                  // 사망 애니 = Dead bool (PlayerAnimator)
+            else if (_animator != null)
+                _animator.PlayTriggerServer(CharacterAnim.Hit);       // 비치명타 = 피격 애니
         }
 
         // 단계 13-2 — IInvincibilityTarget 구현. RollDodgeSkill 등 회피 스킬이 호출.

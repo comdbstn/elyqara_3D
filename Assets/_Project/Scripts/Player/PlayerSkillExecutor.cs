@@ -14,6 +14,7 @@ namespace Elyqara.Player
         private PlayerInput _input;
         private PlayerCharacterBinder _binder;
         private PlayerResources _resources;
+        private PlayerAnimator _animator;
 
         private float _primaryCdLeft;
         private float _secondaryCdLeft;
@@ -25,6 +26,7 @@ namespace Elyqara.Player
             _input = GetComponent<PlayerInput>();
             _binder = GetComponent<PlayerCharacterBinder>();
             _resources = GetComponent<PlayerResources>();
+            _animator = GetComponent<PlayerAnimator>();
         }
 
         public override void OnNetworkSpawn()
@@ -90,6 +92,7 @@ namespace Elyqara.Player
                 _resources.ConsumeStaminaServer(skill.StaminaCost);
             }
             skill.ActivateOnServer(gameObject);
+            if (_animator != null) _animator.PlayTriggerServer(skill.AnimTrigger);
         }
 
         private static SkillData SlotToSkill(CharacterData ch, int slotIndex) => slotIndex switch

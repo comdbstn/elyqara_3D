@@ -57,6 +57,18 @@ namespace Elyqara.Dungeon
             if (DungeonManager.Instance == null) return;
 
             var pos = DungeonManager.Instance.GetPlayerSpawnPosition((int)OwnerClientId);
+
+            // ★ 비키네마틱 Rigidbody = 물리가 위치 권위. transform.position 만 바꾸면
+            //   다음 FixedUpdate 에 Rigidbody 위치로 되돌아감 → 스폰 적용이 통째로 무효화돼
+            //   플레이어가 던전 밖(원점)에서 그대로 낙하 = 맵 밖 추락 버그.
+            //   Rigidbody.position 으로 텔레포트해야 실제로 옮겨진다.
+            var rb = GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.position = pos;
+                rb.linearVelocity = Vector3.zero;   // 씬 로드 대기 중 낙하한 누적 속도 제거
+                rb.angularVelocity = Vector3.zero;
+            }
             transform.position = pos;
         }
     }

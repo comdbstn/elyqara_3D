@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Elyqara.Skills::Elyqara.Skills.RollDodgeSkill
   cooldownSeconds: 0.8
   staminaCost: 25
+  animTrigger: 4
   dashImpulse: 12
   invincibleSeconds: 0.3

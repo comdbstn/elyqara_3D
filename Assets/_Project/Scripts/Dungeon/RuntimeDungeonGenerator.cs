@@ -324,7 +324,8 @@ namespace Elyqara.Dungeon
                 {
                     float fx = (i % 2 == 0 ? 0.25f : 0.75f) * w;
                     float fz = (i / 2 == 0 ? 0.25f : 0.75f) * h;
-                    spawnPoints[i] = MakeMarker(roomGo.transform, $"SpawnPoint_{i}", new Vector3(fx, 0.5f, fz));
+                    // y=1.5 = Player 캡슐 half-height (collider height 2 × root scale 1.5) — 발이 바닥(y=0)에 닿도록
+                    spawnPoints[i] = MakeMarker(roomGo.transform, $"SpawnPoint_{i}", new Vector3(fx, 1.5f, fz));
                 }
 
                 var room = roomGo.AddComponent<Room>();

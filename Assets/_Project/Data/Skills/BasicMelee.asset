@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Elyqara.Skills::Elyqara.Skills.BasicMeleeSkill
   cooldownSeconds: 0.6
   staminaCost: 10
+  animTrigger: 1
   damage: 25
   reach: 2.2
   halfAngleDeg: 60

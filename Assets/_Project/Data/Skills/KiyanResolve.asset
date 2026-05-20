@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Elyqara.Skills::Elyqara.Skills.BuffSkill
   cooldownSeconds: 30
   staminaCost: 30
+  animTrigger: 3
   duration: 8
   attackBonus: 0.5
   defenseBonus: 0.5

@@ -29,6 +29,7 @@ GameObject:
   - component: {fileID: 4821315857164084716}
   - component: {fileID: 5200922479129758369}
   - component: {fileID: 2408699809043484141}
+  - component: {fileID: 7398023496663849737}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -46,10 +47,11 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6773066586325360433}
+  - {fileID: 2288673729983138617}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &2283682516378603912
@@ -90,7 +92,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2893178756320769477}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -156,9 +158,9 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 112
-  m_CollisionDetection: 0
+  m_CollisionDetection: 3
 --- !u!114 &435808740517111561
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -261,6 +263,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Elyqara.Networking::Elyqara.Networking.PlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
   moveSpeed: 5
+  runMultiplier: 1.8
   lookSensitivity: 0.15
 --- !u!114 &5227780567408600354
 MonoBehaviour:
@@ -441,6 +444,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Elyqara.Skills::Elyqara.Skills.KiyanShieldPassive
   blockChance: 0.2
   damageReduction: 0.5
+--- !u!114 &7398023496663849737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2893178756320769477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08fd2d0000f4c4af5920692696a52494, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Elyqara.Player::Elyqara.Player.PlayerAnimator
+  ShowTopMostFoldoutHeaderGroup: 1
+  moveStateBlendSpeed: 6
 --- !u!1 &7238867433792234707
 GameObject:
   m_ObjectHideFlags: 0
@@ -543,3 +560,73 @@ MonoBehaviour:
     CameraRadius: 0.2
     DampingIntoCollision: 0
     DampingFromCollision: 0.5
+--- !u!1001 &1750134288324799698
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7503542603290040071}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 38d7a229215a141c5835e7a9d0ccffa7, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 38d7a229215a141c5835e7a9d0ccffa7, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 38d7a229215a141c5835e7a9d0ccffa7, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 38d7a229215a141c5835e7a9d0ccffa7, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 38d7a229215a141c5835e7a9d0ccffa7, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 38d7a229215a141c5835e7a9d0ccffa7, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 38d7a229215a141c5835e7a9d0ccffa7, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 38d7a229215a141c5835e7a9d0ccffa7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 38d7a229215a141c5835e7a9d0ccffa7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 38d7a229215a141c5835e7a9d0ccffa7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 38d7a229215a141c5835e7a9d0ccffa7, type: 3}
+      propertyPath: m_Name
+      value: KiyanModel
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 38d7a229215a141c5835e7a9d0ccffa7, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 09e52407bdd3442bf8cbb08115e9faa4, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 38d7a229215a141c5835e7a9d0ccffa7, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 38d7a229215a141c5835e7a9d0ccffa7, type: 3}
+--- !u!4 &2288673729983138617 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 38d7a229215a141c5835e7a9d0ccffa7, type: 3}
+  m_PrefabInstance: {fileID: 1750134288324799698}
+  m_PrefabAsset: {fileID: 0}
