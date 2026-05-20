@@ -91,9 +91,41 @@ namespace Elyqara.Dungeon
 
             var builtRooms = BuildRoomGameObjects(rooms, floorCells);
             BuildCorridorMesh(corridors, floorCells, roomCells);
+            PlaceProps(rooms, builtRooms, rng);
             BuildNavMesh();
 
             if (IsServer) AttachServerComponents(rooms, builtRooms);
+        }
+
+        // 단계 13-2 — 방에 prop (궤짝 등) 배치. 시드 결정론 — 모든 클라 같은 위치 (NetworkObject 아님, 시각 prop).
+        private void PlaceProps(List<RoomBox> rooms, List<Room> builtRooms, System.Random rng)
+        {
+            if (data.propPrefabs == null || data.propPrefabs.Length == 0) return;
+            for (int i = 0; i < rooms.Count; i++)
+            {
+                if (rooms[i].Kind != RoomKind.Generic) continue;
+                if (rng.NextDouble() > data.propRoomChance) continue;
+                var prefab = data.propPrefabs[rng.Next(data.propPrefabs.Length)];
+                if (prefab == null) continue;
+
+                var box = rooms[i];
+                float w = box.W * data.cellSize;
+                float h = box.H * data.cellSize;
+                float px = (0.3f + (float)rng.NextDouble() * 0.4f) * w;
+                float pz = (0.3f + (float)rng.NextDouble() * 0.4f) * h;
+
+                var prop = Instantiate(prefab, builtRooms[i].transform);
+                prop.transform.localPosition = new Vector3(px, 0f, pz);
+                prop.transform.localRotation = Quaternion.Euler(0f, rng.Next(4) * 90f, 0f);
+
+                // 바닥에 앉히기 — Renderer bounds 의 바닥면을 방 바닥에 맞춤 (prefab pivot 무관).
+                var rend = prop.GetComponentInChildren<Renderer>();
+                if (rend != null)
+                {
+                    float lift = prop.transform.position.y - rend.bounds.min.y;
+                    prop.transform.position += new Vector3(0f, lift, 0f);
+                }
+            }
         }
 
         // -------- Layout --------
@@ -152,22 +184,56 @@ namespace Elyqara.Dungeon
             }
         }
 
+        private struct RoomPair { public float Dist; public int A, B; }
+
+        private static Vector2 RoomCenter(RoomBox r)
+            => new Vector2(r.X + r.W * 0.5f, r.Y + r.H * 0.5f);
+
+        private static long PairKey(int a, int b)
+        {
+            int lo = Mathf.Min(a, b), hi = Mathf.Max(a, b);
+            return ((long)lo << 32) | (uint)hi;
+        }
+
         private List<Corridor> ConnectRooms(List<RoomBox> rooms, System.Random rng)
         {
-            // Nearest-neighbor + L-shape. TinyKeep (Delaunay+MST+A*) 단순화.
+            // 1) 트리 — 각 방을 이전 방 중 가장 가까운 것에 연결 (전체 연결 보장, 고립 방 X).
+            // 2) 여분 통로 — 가까운 미연결 쌍을 extraCorridorRatio 만큼 추가 = loop(갈림길/우회로) = 긴장감.
             var corridors = new List<Corridor>();
+            var connected = new HashSet<long>();
+
             for (int i = 1; i < rooms.Count; i++)
             {
                 int closestIdx = 0;
                 float closestDist = float.MaxValue;
-                var ci = new Vector2(rooms[i].X + rooms[i].W * 0.5f, rooms[i].Y + rooms[i].H * 0.5f);
+                var ci = RoomCenter(rooms[i]);
                 for (int j = 0; j < i; j++)
                 {
-                    var cj = new Vector2(rooms[j].X + rooms[j].W * 0.5f, rooms[j].Y + rooms[j].H * 0.5f);
-                    float d = Vector2.Distance(ci, cj);
+                    float d = Vector2.Distance(ci, RoomCenter(rooms[j]));
                     if (d < closestDist) { closestDist = d; closestIdx = j; }
                 }
                 corridors.Add(MakeCorridor(rooms[closestIdx], rooms[i], rng));
+                connected.Add(PairKey(closestIdx, i));
+            }
+
+            int extra = Mathf.RoundToInt(rooms.Count * data.extraCorridorRatio);
+            if (extra > 0)
+            {
+                var candidates = new List<RoomPair>();
+                for (int i = 0; i < rooms.Count; i++)
+                    for (int j = i + 1; j < rooms.Count; j++)
+                    {
+                        if (connected.Contains(PairKey(i, j))) continue;
+                        candidates.Add(new RoomPair
+                        {
+                            Dist = Vector2.Distance(RoomCenter(rooms[i]), RoomCenter(rooms[j])),
+                            A = i,
+                            B = j
+                        });
+                    }
+                candidates.Sort((x, y) => x.Dist.CompareTo(y.Dist));
+                for (int k = 0; k < extra && k < candidates.Count; k++)
+                    corridors.Add(MakeCorridor(rooms[candidates[k].A], rooms[candidates[k].B], rng));
             }
             return corridors;
         }

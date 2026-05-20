@@ -12,14 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a4e627bbcecf460288021568af4befc, type: 3}
   m_Name: Floor1Data
   m_EditorClassIdentifier: Elyqara.Dungeon::Elyqara.Dungeon.DungeonGenerationData
-  gridWidth: 30
-  gridHeight: 30
+  gridWidth: 50
+  gridHeight: 50
   cellSize: 8
-  roomCount: 6
-  minRoomSize: 4
-  maxRoomSize: 8
+  roomCount: 15
+  minRoomSize: 3
+  maxRoomSize: 14
   roomBuffer: 2
-  maxPlacementAttempts: 200
+  maxPlacementAttempts: 400
+  extraCorridorRatio: 0.4
+  propPrefabs:
+  - {fileID: 4138593848162077292, guid: e8447ad25d3334b718452c94c54b305d, type: 3}
+  propRoomChance: 0.5
   wallHeight: 8
   wallThickness: 0.3
   floorMaterial: {fileID: 2100000, guid: d8529644fb2284df4bf8aa903e3f8128, type: 2}
