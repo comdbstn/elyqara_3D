@@ -66,7 +66,7 @@
 1. **전투 톤**: 다크소울/MH식 무게감. 한 마리 한 마리 집중. 뱀서식·RoR2식 잡몹 학살 X
 2. **던전**: 던전본/바로니식 전통 미궁. 좁은 통로/방. RoR2식 야외 X
 3. **협동**: 역할 강제 X (자율적 역할구조). 같은 드랍을 같이 보고 분배 = 협동의 본질
-4. **무기**: 캐릭터별 고정 (코만도 풍). 첫 캐릭 = 검방패 (검=참격, 방패=타격)
+4. **무기**: 캐릭터별 **visual** 고정 (Kiyan=검방패 등). **무기 카테고리 시스템 X** (사용자 직인 2026-05-05 단순화). 스킬 = 캐릭별 풀 + 4 슬롯 선택 (캐릭터 숙련도 해금. M12+). 속성 (Slash/Blunt) = 스킬 단위
 5. **빌드**: BG3/바간테식 RPG 아이템 랜덤 드랍. 무기+방어구. Elyqara 디아블로식 그리드 차용
 6. **속성 1차**: 참격 + 타격만. 장기 B(2 레이어). 원소·관통 등은 백로그
 7. **효과 1차**: 속성당 데미지 % 증가만. 회복/시너지/메커니즘 변화는 백로그
@@ -99,6 +99,40 @@ public class AttackProperty {
 
 ---
 
+## 게임 구조 (락 — 사용자 직인 2026-05-04 / 2026-05-05 갱신)
+
+- **세계관**: Elyqara = 고대 던전 위 세워진 대도시 (던만추 오라리오 패턴). 다양 종족 / **인간 메인** (1차 = 모든 캐릭 인간). 모험가 = 마물 잡고 생계
+- **모험가 본질**: 신 계약 = 부활 능력 = 모험가 시작 조건
+- 게임 = **3층** / 층마다 = **스테이지 3개** / 각 층의 **Stage3 = 보스 영역**
+- **매 런 = 9 스테이지 (1층~3층)** = 1 사이클 (로그라이크 정공). 매 런 1층부터
+- **첫 데모 = 1층** (Stage1+2+3) Room-and-Corridor 절차 생성 미로
+- 2층/3층 = 미래 (재미 검증 후 디자인)
+
+### 빌드 공식 (사용자 직인 2026-05-05)
+
+```
+한 런 빌드 = 캐릭 × 스킬 (4 슬롯) × 신
+메타 진행 = 캐릭별 숙련도 + 캐릭×신 신앙심 매트릭스
+```
+
+- 캐릭터 숙련도 = 캐릭별. 스킬 풀 해금 (M12+)
+- 신앙심 = 캐릭 × 신 매트릭스. 신 효과 강화 (M12+)
+- 신 풀 = 모든 캐릭 공유. 자유 조합
+- 스킬 = 4 슬롯 × 캐릭별 풀. 플레이어 슬롯 선택 = 빌드
+- M11 = 신 1명 자동 / Kiyan 1캐릭 / 스킬 베이스 4개. 단순화. 상세 → `memory/gameplay_concept_lock_20260505.md`
+
+### DanMachi 차용 락 (사용자 직인 2026-05-04 / 갱신 2026-05-05)
+- ✅ **길드 hub** = Lobby (퀘스트 받는 길드 컨셉) / 던전 층별 정체성 / 길드 건물 시각
+- 🟡 **M12+ 백로그** (사용자 직인 2026-05-05 *"그냥 컨셉인 정도"*):
+  - 모험가 레벨 = 캐릭터 숙련도 (메타 진행. 비전 백로그 "마스터리/메타 통화" 정합)
+  - 신 부활 (게임오버 메타 layer. 한 런 안 다운/부활 = 단계 9 그대로)
+  - 신 효과 = ItemEffect 시스템 확장 (빌드 다양성)
+- ❌ **파밀리아 단체** = 폐기. 다른 단체 시스템으로 대체 예정 (M12+ 미정)
+- 비주얼 톤 = **다크판타지 × 일본 서브컬쳐** (베르세르크 / 그랑블루 / 다크소울 일본판 / Octopath). 라노벨 cute 톤 X. 다크소울/MH 전투 무게감 유지
+- 타겟 = 서브컬처 수요
+
+---
+
 ## 마일스톤 (시간 X, 명제 단위)
 
 > **검증 목표: 검방패 4명이 좁은 던전에서 적 한 마리 무겁게 잡고, 드랍 분배해서 빌드 형성하는 한 런이 재밌는가**
@@ -114,11 +148,18 @@ public class AttackProperty {
 | 7 | 빌드 시스템 (Elyqara 그리드 인벤토리 차용 + F키 픽업) | "적 잡으면 뭔가 떨어짐" | ✅ |
 | 8 | 자유 픽업 드랍 — 4명 검증 (코드 X, 단계 11 합쳐질 가능성) | "협동의 본질이 굴러감" | |
 | 9 | 다운/부활 + 데미지 파이프라인 | "한 명 죽어도 끝 아님" | ✅ |
-| 10 | 보스 + 한 런 사이클 | "한 런이 완전 굴러감" | 🟢 다음 |
-| **11** | **🎯 코어 검증 플레이테스트 (친구 4명)** | "재밌는가? 다시 하고 싶은가?" | |
+| 10 | 층 시스템 + 트리거 + 보스 + 로비 + UI 폴리싱 (★ 첫 데모 완성) | "한 런이 완전 굴러감 + 데모 형태 갖춤" | ✅ |
+| **13-1** | **1층 (Stage1+2+3) Room-and-Corridor 자동 생성** — RuntimeDungeonGenerator + 시드 동기화 + Material/조명/NavMesh | "미로 + 적 + 보스 한 런 자동 굴러감" | ✅ 사용자 직인 2026-05-04 |
+| **13-2** | **외형 정체성** — A 환경 (Material 사용자 파일 대기) / B 모델 visual / C 애니 | "그레이박스 아닌 게임처럼 보임" | 🟡 13-A 사용자 Material 파일 대기 |
+| **11** | **🎯 코어 검증 플레이테스트 (친구 4명)** — 외형 갖춘 데모로 검증 | "재밌는가? 다시 하고 싶은가?" | |
+
+### ★ 첫 데모 스코프 (사용자 직인 2026-05-02)
+- 캐릭터 1 (Kiyan) / 스테이지 3 (마지막 보스 스테이지) / 로비 (길드 느낌) / 적 1 (Wisp) / 보스 1 / UI 폴리싱
+- 한 런 = 로비 → 스테이지 1 → 2 → 3 (보스) → 클리어
+- 상세 → `memory/first_demo_scope_20260502.md`
 
 ### 코어 검증 통과 후 (큰 그림만)
-- M12 콘텐츠 확장 (적/아이템/던전 다양성) / M13 외형 정체성 / M14 폴리싱 / M15 Steam 페이지 + 출시
+- M12 콘텐츠 확장 (적/아이템/던전 다양성) / M14 폴리싱 / M15 Steam 페이지 + 출시 (M13 = M11 보다 먼저로 이동됨)
 
 **기간 중요 X — 명제 만족 시점이 검증.** 호텔 일 + N1 공부 + 게임 사이드 강등 정합 (사용자 직인: *"주차별말고 그냥 순서로 해줘"*).
 
@@ -148,23 +189,27 @@ public class AttackProperty {
 
 ### 멀티 우선 아키텍처 (1주차부터)
 1. 모든 게임 상태는 호스트 권위
-2. 절차생성 = 시드 동기화 (단계 6 = 직접 맵핑 채택, 절차생성 X)
+2. 1층 (Stage1+2+3) = **시드 동기화 절차 생성** (단계 13-1 결정. NetworkVariable<int> _seed 패턴). 단계 6 직접 맵핑 인프라 보존 — 미래 2층/3층 ref
 3. 싱글플레이 = "혼자 호스트"하는 케이스. 오프라인 모드 따로 X
 
 ---
 
-## 시스템 인덱스 — 현재 상태 (2026-05-02)
+## 시스템 인덱스 — 현재 상태 (2026-05-04)
 
-- **단계 1~6 ✅** 통과 (상세 결정 + 사용자 직인 → `docs/decisions.md`)
-- **현재 상태**: 단계 9 통과 — 다운/부활 + 데미지 파이프라인 + 인벤 효과 적용. 단계 10 (보스 + 한 런 사이클) 진입 준비
+- **단계 1~10 ✅** 통과 (상세 결정 + 사용자 직인 → `docs/decisions.md`)
+- **단계 13-1 ✅** 통과 — 1층 (Stage1+2+3) Room-and-Corridor 자동 생성 작동. 사용자 직인 *"기대했던 이상이야 넌 최고야"*. 상세 → `memory/phase13_dungeon_runtime_complete_20260504.md`
+- **현재 상태**: 단계 13-2 (외형 정체성 — visual replace) 진입 대기. 사용자 = Material 파일 별도 제공 예정 (*"머테리얼은 내가 파일구해와서 알려줄게"*). 다음 시작점 = a. M11 코어 검증 / b. 단계 13-2 캐릭터 외형 / c. 단계 13-1 fine-tune (미로 분기 / 시각 톤)
 - **단계 7 ✅** "적 잡으면 뭔가 떨어짐" — `Elyqara.Items` asmdef + 11 .cs + Phase7Setup. F키 픽업 + 4×6 그리드. 사용자 *"4명 분배 X 먼저 먹는 사람"* (자유 경쟁 = 협동 본질). 사용자 직인 *"좋아 모두 정상작동해"*. NGO auto-populate 학습
 - **단계 9 ✅** "한 명 죽어도 끝 아님" — Boss Room 패턴. `Elyqara.Game` asmdef + 5 .cs + 6 수정. IsDown NetworkVariable + E키 2초 hold 부활 + GameOver UI + BasicMeleeSkill Inventory.GetTotalEffect 적용. 사용자 직인 *"부활은 정상적으로 돼"* + *"응 좋아 정상적으로 표시되는것같아"*
-- **코드 폴더**: `Assets/_Project/Scripts/{Networking,Player,Characters,Enemies,Skills,Dungeon,Items,Game}/` (asmdef 8개 분리) + `Assets/_Project/Editor/{Phase6Setup,RoomSnapTool,DungeonGenerator,Phase7Setup,Phase9Setup}.cs`
-- **씬**: `SampleScene` 에 `[Network]` (NetworkBootstrap) + `[DungeonManager]` + StartRoom + Room_N/E/S/W/E2/E3 + Main Camera (CinemachineBrain)
+- **단계 10 (A+B+D 코드 완료)** "한 런 굴러감" — 씬 4개 분리 (Lobby/Stage1/Stage2/Stage3_Boss) + DDoL 패턴 (Player/vCam/GlobalManagers) + 보스 (BossMarker + WispBoss prefab + IsVictory NetworkVariable) + HUD HP/Stamina Slider + Victory UI. NGO 2.x 정공 검증 (WebSearch). `Phase10Setup.cs` Editor 3 메뉴
+- **코드 폴더**: `Assets/_Project/Scripts/{Networking,Player,Characters,Enemies,Skills,Dungeon,Items,Game}/` (asmdef 8개 분리) + `Assets/_Project/Editor/{Phase6Setup,RoomSnapTool,DungeonGenerator,Phase7Setup,Phase9Setup,Phase10Setup}.cs`. 단계 10 신규 = `Player/PlayerPersistence.cs` + `Game/{StageTrigger,LobbyManager,VictoryUI,PlayerHUD,BossMarker}.cs`
+- **씬 (단계 10 후)**: `Lobby.unity` (시작) + `Stage1/2/3_Boss.unity`. Build Settings 4 씬 등록. SampleScene 은 그대로 보존
 - **데이터**: `Assets/_Project/Data/Characters/Kiyan.asset` + `Assets/_Project/Data/Rooms/{StartRoom,Room_N,...}Data.asset`
 - **GitHub**: `https://github.com/comdbstn/elyqara_3D` main 브랜치
 - **Steam AppID**: 480 (Spacewar) — dev 테스트용. 실제 출시 전 교체 필수
-- **MCP**: `unity-mcp` Connected. ★ 함정 = 같은 session 안 Editor 재시작 시 schema 캐싱 → 새 session 까지 우회
+- **MCP**: `unity-mcp` Connected (CoplayDev 9.6.8 HTTP). ★ 함정 = Claude Code ToolSearch schema 캐싱. **★★ 우회 = Bash curl 직접 호출** (단계 13-1 자동화 검증). 상세 → `memory/feedback_bash_mcp_bypass.md`
+- **글로벌 가이드 (2026-05-05)**: `~/.claude/CLAUDE.md` = Karpathy 4 원칙 자동 prepend (Think Before Coding / Simplicity First / Surgical Changes / Goal-Driven Execution). 우리 절대 원칙 10 + 정합
+- **단계 13-2 Kiyan 스킬 통합 ✅** (2026-05-05): 사용자 직인 = A안 (검 평타/방패 강타+밀치기/결전/구르기). `Skills/{IInvincibilityTarget, IKnockable, RollDodgeSkill, BuffSkill, TimedBuff, KiyanShieldPassive}.cs` + PlayerResources/BasicMeleeSkill knockback 패치 + EnemyController IKnockable 구현. SO 4장 (BasicMelee/ShieldBash/KiyanResolve/KiyanRoll) + Kiyan.asset 4 슬롯 wire-up + Player.prefab KiyanShieldPassive = `Editor/Phase13Setup.cs` 한 메뉴 자동화. M12+ 풀 백로그 = `memory/kiyan_phase13_2_complete_20260505.md`. 사용자 manual 검증 대기
 
 ### 카테고리별 인덱스 (인터페이스 + 매니저 + 데이터 패턴)
 
@@ -172,12 +217,14 @@ public class AttackProperty {
 - **플레이어** ✅: `Elyqara.Player` asmdef. `PlayerInput` (Move/Look + 4슬롯, Owner-only enable) / `PlayerMovement : NetworkBehaviour` (server-auth Rigidbody.linearVelocity) / `PlayerResources : NetworkBehaviour` (NetworkVariable HP/Stamina + regen) / `PlayerCamera : NetworkBehaviour` (vCam SetParent(null) + LateUpdate 직접 추적) / `PlayerCharacterBinder` (CharacterData ref) / `PlayerSkillExecutor` (4슬롯 → ISkill)
 - **캐릭터** ✅: `Elyqara.Characters` asmdef. `CharacterData : ScriptableObject` (HP/Stamina + 4 슬롯). 첫 캐릭 = `Kiyan.asset`. 새 캐릭 = SO 한 장 + Player.prefab 의 PlayerCharacterBinder.character 한 줄 변경
 - **적** ✅: `Elyqara.Enemies` asmdef. `IEnemy` + `EnemyData : ScriptableObject` (HP/속도/어그로/4-phase attack/stopping distance/콘 hitbox) + `EnemyController : NetworkBehaviour` **Souls-like 6-state FSM** (Idle/Chase/Anticipation/Active/Recovery/Dead) + Transition() 단일 진입점 + 4-phase attack + Stopping Distance + 콘 OverlapSphere hitbox. 첫 적 = `Wisp.asset`. `EnemySpawner` 호스트 시작 시 1마리 (Phase 5+ StartRoom prefab 자식)
-- **스킬** ✅: `Elyqara.Skills` asmdef. `ISkill` + `SkillData : ScriptableObject, ISkill` (추상) + `BasicMeleeSkill` (구체) + `IDamageable` (Player/Enemy 둘 다 구현). 첫 스킬 = `BasicMelee.asset`
-- **던전** ✅: `Elyqara.Dungeon` asmdef. `IRoom` + `DoorDirection` enum (N/E/S/W) + `RoomData : SO` (isStartRoom flag) + `Room : MonoBehaviour, IRoom` (4 door socket + spawnPoints[] + OnEnable self-register + Editor Gizmos N/E/S/W 색깔 라벨) + `DungeonManager` (Singleton) + `PlayerSpawnPositioner : NetworkBehaviour` (server-side OnNetworkSpawn 시 transform.position 설정 — NGO 2.x ConnectionApproval 버그 회피). **방 = StartRoom + 6개 복제** mesh 끼리 직접 정렬 (절차생성/통로 X). Editor 도구 = `Phase6Setup` (one-shot setup) + `RoomSnapTool` (Cmd+Alt+S) + `DungeonGenerator` (7-room)
+- **스킬** ✅: `Elyqara.Skills` asmdef. `ISkill` + `SkillData : ScriptableObject, ISkill` (추상) + `BasicMeleeSkill` (구체) + `IDamageable` (Player/Enemy 둘 다 구현, `DamageFaction` enum 으로 FF off — 단계 10 fix). 첫 스킬 = `BasicMelee.asset`. 단계 12+ FF on 스킬 = `bypassFactionCheck` 플래그 추가
+- **던전** ✅: `Elyqara.Dungeon` asmdef (refs = Unity.Netcode.Runtime + Elyqara.Enemies + Elyqara.Game + Unity.AI.Navigation). `IRoom` + `DoorDirection` enum + `RoomData : SO` (isStartRoom flag) + `Room : MonoBehaviour, IRoom` (Setup() public method 추가 — 코드 생성 방 setting + OnEnable self-register) + `DungeonManager` (Singleton) + `PlayerSpawnPositioner : NetworkBehaviour` (OnLoadEventCompleted coroutine — Room 등록 완료까지 대기 timeout 5초 race 회피). **단계 13-1 자동 생성** = `RuntimeDungeonGenerator : NetworkBehaviour` (Room-and-Corridor + NetworkVariable<int> 시드 동기화 + cell 단위 wall — 외부 인접 floor 면 wall 생성 X = corridor 진입로 자동 뚫림 = 문 X + NavMeshSurface.BuildNavMesh runtime) + `DungeonGenerationData : SO` (그리드/방/Material/조명). 옛 단계 6 직접 맵핑 인프라 보존 (Editor `DungeonGenerator.cs` + `RoomData.asset` 7장 + `StartRoom.prefab` + 6개) — 미래 2층/3층 ref
 - **아이템** ✅ 단계 7: `Elyqara.Items` asmdef. `IItem` + `ItemData : SO` (itemName/icon/gridSize/effects[]) + `ItemEffect` (SlashDamageBonus/BluntDamageBonus enum + struct) + `ItemDatabase : SO` (Resources/ Singleton — Spawn 동기화용 인덱스 lookup) + `ItemSlot` struct (INetworkSerializable + IEquatable) + `DropTableData : SO` (가중치 Roll) + `DroppedItem : NetworkBehaviour` (NetworkVariable<int> 인덱스 동기화) + `ItemSpawner` static (호스트 권위) + `Inventory : NetworkBehaviour` (NetworkList<ItemSlot> 4×6 + GetTotalEffect) + `InventoryUI` Singleton (uGUI 그리드, transform.Find Icon 정확 lookup, count<=1 시 itemName 폴백). 효과 적용 = 단계 9 BasicMeleeSkill 호출 시 곱
 - **플레이어 (확장 단계 7+9)**: `Elyqara.Player` 추가 — `PlayerPickup` (F키 픽업, 분배 X) + `PlayerInventoryBinder` (I키 토글) + `PlayerRevive` (E키 2초 hold 부활). PlayerResources 에 `IsDown : NetworkVariable<bool>` + `ReviveServer(hp)`. PlayerMovement/SkillExecutor 가 IsDown 체크
 - **공격 속성**: AttackProperty 데이터 구조 (위 정의). 1차 = `Elyqara.Items` 안 `ItemEffectType` (SlashDamageBonus/BluntDamageBonus). 단계 12+ `Combat` asmdef 분리 가능
-- **게임 상태** ✅ 단계 9: `Elyqara.Game` asmdef. `GameStateManager : NetworkBehaviour` Singleton (씬 placed NetworkObject) — 호스트 polling 0.5초 간격 모든 PlayerResources.IsDown 감지 → `IsGameOver` NetworkVariable. `GameOverUI` polling 패널 토글. 단계 10 = `IsVictory` 보스 처치 시 set
+- **게임 상태** ✅ 단계 9+10 (+ fix): `Elyqara.Game` asmdef (refs = Player/Characters/Enemies). `GameStateManager : NetworkBehaviour` Singleton — placed 가 아닌 dynamic spawn (NetworkBootstrap 가 OnServerStarted 시 GlobalManagers prefab Spawn(destroyWithScene=false) + GameStateManager OnNetworkSpawn 시 DDoL). 호스트 polling 0.5초 간격 모든 PlayerResources.IsDown 감지 → `IsGameOver` / `IsVictory` (단계 10-B 보스 처치) NetworkVariable. **race 회피 = `validCount` 추적**. **OnLoadEventCompleted 콜백 → Stage 진입 시 모든 다운 Player 자동 100% HP 부활** (Lobby 제외). `GameOverUI` / `VictoryUI` / `PlayerHUD` (HP/Stamina Slider) 폴링 토글 + Awake DDoL. `LobbyManager` placed in Lobby — 호스트 Start 버튼 → LoadScene("Stage1", Single). `StageTrigger` placed in Stage — Player 진입 시 다음 씬 LoadScene (다운 Player 차단). `BossMarker` 보스 prefab 부착 — IsAlive==false 시 ReportBossDefeatedServer
+- **데미지 파이프라인 (단계 10 fix)**: `IDamageable.Faction` (DamageFaction.Player/Enemy). BasicMeleeSkill / EnemyController.PerformHit 가 같은 Faction skip = FF off. PlayerResources.ReviveServer 는 percent 받음 (캐릭터 max != 100 안전)
+- **씬 흐름 (단계 10)**: Lobby (시작) → Host Start → Stage1 → Room_E3 동쪽 StageTrigger → Stage2 → Trigger → Stage3_Boss → 보스 처치 → IsVictory → VictoryUI. **DDoL 영구 객체** = NetworkManager (NGO 자동) + Player NetworkObject (PlayerPersistence) + vCam (PlayerCamera.OnNetworkSpawn) + GlobalManagers (GameStateManager OnNetworkSpawn) + GameOverCanvas/VictoryCanvas/HUDCanvas (Awake). **씬마다 placed** = DungeonManager + Room들 + StageTrigger + EnemySpawner. **Player 위치 reset** = PlayerSpawnPositioner OnLoadEventCompleted 호스트 콜백 → DungeonManager.GetPlayerSpawnPosition
 
 ---
 

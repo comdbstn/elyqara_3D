@@ -132,3 +132,107 @@
   - 정공 = `transform.Find("Icon")` 정확히 lookup + Icon null 시 placeholder 색깔 (회색 사각형) + count <= 1 시 itemName 폴백 표시
 - **씬 placed NetworkObject 패턴**: `[GameStateManager]` 가 NetworkObject + GameStateManager 박힘. NGO Scene Management 활성 시 자동 spawn. NetworkPrefabsList 등록 X (씬 placed)
 - **AttackProperty 위치 결정**: `Elyqara.Items` 안 `ItemEffectType` 유지 (YAGNI). 단계 12+ `Combat` asmdef 분리 가능
+
+## 2026-05-02 첫 데모 스코프 락
+- **사용자 직인**: *"캐릭터 1개 스테이지 3개 (마지막 스테이지는 보스 있게) 로비 스테이지 (멀티플레이어 로비 길드느낌으로) 적 종류 1개 보스 1개 이렇게 가면될것같아 UI도 조금 신경쓰고"*
+- 한 런 흐름 = 로비 → 스테이지 1 → 2 → 3 (보스) → 클리어
+- M12+ 백로그 = 캐릭터 추가 / 적 다양성 / 무기·방어구·소비 카테고리 / 희귀도 / 회복·시너지·메커니즘 효과 / 마스터리·메타 통화
+
+## 2026-05-02 단계 10 (A+B+D) 코드 작성 + 사용자 1차 검증 OK
+- **단계 10 코드 ✅** 사용자 1차 검증 = "되는것같아" (Lobby → Stage1 → Stage2 → Stage3_Boss → Victory 한 런 굴러감)
+- **추가 코드**: `Phase10Setup.cs` Editor 도구 + 새 7 .cs (PlayerPersistence/StageTrigger/LobbyManager/VictoryUI/PlayerHUD/BossMarker) + 7 수정 (NetworkBootstrap/GameStateManager/GameOverUI/Game.asmdef/PlayerCamera/PlayerSpawnPositioner/EnemySpawner/InventoryUI)
+- **씬 4개 분리**: Lobby (시작) / Stage1 / Stage2 / Stage3_Boss. Build Settings 등록
+- **DDoL 패턴 채택** (NGO 2.x WebSearch 검증):
+  - Player NetworkObject + vCam + GlobalManagers (GameStateManager) + UI Canvas (GameOver/Victory/HUD/Inventory) 모두 DDoL 마크
+  - GameStateManager = placed 가 아닌 dynamic spawn (NetworkBootstrap 가 OnServerStarted 시 instantiate + Spawn(destroyWithScene=false)). late-join sync 안전
+  - PlayerSpawnPositioner OnLoadEventCompleted 콜백 → DungeonManager.GetPlayerSpawnPosition 으로 씬 전환 후 위치 reset
+  - 검증 근거: NGO 공식 docs *"If you're using scene switching, you can migrate the NetworkObject into the DDoL"*
+- **사용자 manual 검증 시퀀스**:
+  - Tools/Elyqara/Setup Phase 10-A (Scenes + DDoL)
+  - Tools/Elyqara/Setup Phase 10-B (Boss)
+  - Tools/Elyqara/Setup Phase 10-D (HUD)
+  - Lobby Play → Host → Start Run → 한 런 검증
+- **InventoryUI 누락 fix** (검증 도중 발견): Phase10Setup-A 가 Lobby 씬에 InventoryCanvas 자동 생성하도록 patch + InventoryUI.Awake DDoL 마크. Phase10Setup 모든 Ensure 메서드 idempotent 처리 (재실행 안전)
+- **★ 사용자 미래 결정 (단계 11 통과 후 처리)**: *"따로 셋업하는 elyqara툴 말고 게임안에 다 넣어버리자"* — Phase{N}Setup Editor 메뉴 의존 줄이고 Canvas/Manager prefab 화로 통합 리팩터. 메모리 `feedback_integrate_setup_tools_into_game.md` 보관
+
+## 2026-05-02 코드 점검 + 일괄 fix (HIGH 1 + MED 6 + LOW 4)
+- **HIGH H2**: GameStateManager.OnNetworkSpawn — Singleton dup 시 NGO Spawned 객체 안전 정리 (`IsSpawned ? Despawn(true) : Destroy()` 분기)
+- **MED M1**: GameStateManager.CheckAllDown — `validCount` 추적 → PlayerObject spawn 전 race 시 즉시 GameOver 회피
+- **MED M2**: PlayerResources.ReviveServer — 절대값 → percent 전달. 캐릭터 max != 100 시 의도 깨짐 회피
+- **MED M3**: StageTrigger — 다운 Player 차단 (사용자 직인 *"다운된 동료 끌고가는건 안되고"*)
+- **★ 추가 명세**: GameStateManager.OnLoadEventCompleted — Stage 진입 시 모든 다운 Player 자동 100% HP 부활 (Lobby 제외). 사용자 직인 *"다음 스테이지로가면 동료가 부활하긴해"*
+- **MED M4**: IDamageable.Faction (DamageFaction enum Player/Enemy) — BasicMeleeSkill / EnemyController 같은 Faction skip = FF off. 사용자 직인 *"FF off로 해줘 되는 스킬도 있을건데 스킬개발하면서 만들게"* (단계 12+ 백로그)
+- **MED M5**: InventoryUI.Bind(null) → ClearAllSlots
+- **LOW**: EnemyController.logStateTransitions=false 기본값 + EnemyController/PlayerResources OnHealthChanged `#if UNITY_EDITOR` 게이트 + Phase10Setup 빈 placeholder 메서드 제거
+
+## 2026-05-02 마일스톤 재정의 — M13 (외형) 이 M11 (코어 검증) 보다 먼저
+- **사용자 직인**: *"이제 그거 해야되거든 게임처럼 보이게. 길드 맵, 인게임 맵 (한 3개에서 5개정도 돌리면 될것같아) 보스룸 캐릭터/적애니메이션 이런거 등등 그래픽이 없으면 플레이하는 의미가 없으니께"*
+- **재정의**: M10 → **M13 외형 정체성 (현재)** → M11 코어 검증 (외형 갖춘 데모로) → M12 콘텐츠
+- **이유**: 그레이박스로는 친구 4명 검증 의미 약함. 외형 갖춘 후 검증이 정공
+- **3-phase 분리** (사용자 plan):
+  - Phase 13-A: 환경 mesh (코드 X, drag&drop). 던전 1방 (StartRoom prefab) → Lobby → 보스룸 → decoration
+  - Phase 13-B: 모델 visual replace (Player/Wisp/Boss capsule 위에 모델만, 애니 X)
+  - Phase 13-C: 애니 셋업 (Animator Controller + PlayerAnimator/EnemyAnimator)
+- **★ Mesh 처리 방식 = 하이브리드** (Claude 추천 + 사용자 OK):
+  - 외곽 (Floor/Wall/Ceiling) = ProBuilder 그레이박스 보존 + Material 교체. BoxCollider 안전 + Door socket/spawn point/dimension 보존
+  - 안 (Decoration) = AI 3D mesh 자식 placement
+  - 거부한 옵션: (a) 한 방 통째 AI mesh = MeshCollider 비-convex 함정 / (b) 완전 modular = AI 출력 톤 일관성 보장 X
+- **AI 3D 툴 결정 = Phase 13-B/C 시점** (Phase 13-A 환경 = PBR 텍스처 위주라 AI 3D 툴 X)
+- **사용자 직인**: *"다양한 ai툴을 사용해서 직접 만들어볼거야 ... 던전 방부터 시작하는게 좋을것같긴하다"*
+
+## 2026-05-04 단계 13-1 통과 — 1층 (Stage1+2+3) Room-and-Corridor 자동 생성
+
+- **사용자 직인**: *"좋다. 넌 최고야. 완벽하게 작동한은 것 같아. 머테리얼은 내가 파일구해와서 알려줄게."*
+- **마일스톤 재정의** (사용자 직인 2026-05-04 *"스테이지 관련해서는 뒤집어도돼"*): 단계 6 결정 (직접 맵핑 7-room, 절차 생성 X) → 단계 13-1 (1층만 절차 생성, 옛 인프라 보존)
+- **DanMachi 차용 락** (사용자 직인 2026-05-04):
+  - ✅ 길드 hub 기능 / 던전 층별 정체성 / 길드 건물 시각 (다크 톤 필터링)
+  - ❌ 세계관 (파밀리아/팔나/신의 은혜) — 백로그
+  - 톤 = 다크소울/MH 무게감 유지. 라노벨톤 X. **타겟 = 서브컬처 수요**
+- **게임 구조 락** (사용자 직인 2026-05-04): 게임 = 3층 / 층마다 = 스테이지 3개 / 각 층의 Stage3 = 보스 영역 / 층마다 테마 같음. 첫 데모 = 1층 (Stage1+2+3)
+- **자동 생성 알고리즘**: Room-and-Corridor (TinyKeep Delaunay+MST+A* 단순화 = nearest-neighbor + L-shape). 시드 동기화 = NGO `NetworkVariable<int>` 호스트 권위. 시드 입자 = a (Stage 단위 매 런 새 시드). mesh = Unity primitive Cube + Material. Wall = cell 단위 분할 + 외부 인접 cell 이 floor 면 wall 생성 X (corridor 진입로 자동 뚫림 — 단계 13 fix 발견)
+- **추가 코드**: `Elyqara.Dungeon` asmdef refs 에 `Unity.AI.Navigation` 추가. 새 클래스 2개 (`RuntimeDungeonGenerator : NetworkBehaviour` + `DungeonGenerationData : SO`). 옛 인프라 호환 변경 (`Room.cs` Setup() / `StageTrigger.cs` MonoBehaviour 변경 + Init() / `EnemySpawner.cs` Init() / `PlayerSpawnPositioner.cs` coroutine race 회피)
+- **새 데이터/에셋** (Bash MCP 통한 자동 생성): `Floor1Data.asset` + RoomData 3장 (RuntimeSpawn/Generic/Exit) + Material 2장 (DungeonFloor/DungeonWall URP/Lit) + `WispBoss.prefab` (Wisp 복사 + BossMarker + scale 1.5x. HP 차별화 X — M11 후 EnemyData 차별화)
+- **★★ MCP 자동화 학습 (큰 함정 우회)**:
+  - Claude Code ToolSearch 에 MCP 도구 schema 안 보일 때 (옛 메모리 함정 = "새 session 까지 우회") → **Bash curl 직접 MCP HTTP 호출 = 우회 가능**. 단계 13-1 자동화 = 새 session 안 가고 현재 컨텍스트 끝까지 진행. CoplayDev 9.6.8 35+ 도구 모두 호출 가능
+  - SerializedObject 가 NetworkBehaviour 상속 클래스의 ScriptableObject ref 적용 안 됨 발견 → **Reflection FieldInfo.SetValue 우회**가 정공. Component ref (NetworkObject 등) 는 SerializedObject OK
+  - 상세 → `memory/feedback_bash_mcp_bypass.md` + `feedback_serializedobject_so_ref_fail.md`
+- **신/계약 컨셉 백로그** (사용자 인용): *"신이랑 계약하는 컨셉도 마음에 들긴하는데 일단 개발하고 생각하자"* — M11 코어 검증 통과 후 결정. 비전 9개 1번 (다크소울/MH) 정합 (다크소울 = 신/계약 모티프 강함)
+- **사용자 manual 작업 대기**: Material 파일 별도 제공 (사용자 = *"머테리얼은 내가 파일구해와서 알려줄게"*). 텍스처 입힌 Material 받으면 DungeonFloor.mat / DungeonWall.mat 교체
+- **다음 시작점 (선택지)**:
+  - a. **M11 코어 검증** (친구 4명 플레이테스트) — 외형 부족하지만 코어 검증 가능
+  - b. **단계 13-2 (캐릭터 외형)** — Kiyan 모델/visual replace
+  - c. **단계 13-1 fine-tune** — 미로 분기 (recursive backtracker), 시각 톤 강화 (사용자 Material 받은 후)
+
+## 2026-05-05 게임플레이 컨셉 락 — 세계관 + 무기 폐기 + 스킬 풀 + 신앙심 매트릭스
+
+- **세계관 락**: Elyqara = 고대 던전 위 대도시 (던만추 오라리오 패턴). 다양 종족 / **인간 메인** (1차 모든 캐릭 인간). 모험가 = 마물 잡고 생계 + **신 계약 부활** = 직업 본질. 던전 = 생활 위해 아래로. 매 런 = 9 스테이지 = 1 사이클 (로그라이크). Elyqara 2D 채용 = **캐릭터만**
+- **비전 #4 변경**: 무기 카테고리 시스템 폐기 (사용자 직인 *"무기 카테고리는 없어도 돼. 시스템을 단순하게 하자"*). 캐릭별 visual 고정만. 비전 #6 (속성 1차 = Slash/Blunt) 그대로 — 속성 = 스킬 단위
+- **빌드 공식 락**: 한 런 = 캐릭 × 스킬 (4 슬롯) × 신. 메타 = 캐릭별 숙련도 + 캐릭×신 신앙심 매트릭스
+- **스킬 시스템**: 4 슬롯 × 캐릭별 풀. 캐릭터 숙련도 따라 풀 해금. 플레이어가 슬롯 끼울 스킬 선택 = 플레이스타일
+- **신 시스템**:
+  - **M11 = 신 1명 자동 (선택 X)**, 이름/lore = placeholder. 코어 = *"Kiyan 은 신과 계약했다"* 정도 보존
+  - **M12+ 본격** = 신 풀 5~7명 (Hades 패턴 + 신앙심 매트릭스). 신앙심 = 캐릭×신 별로 따로 (영구 진행)
+- **DanMachi 차용 추가 갱신**: 파밀리아 = 폐기. 모험가 레벨 / 신 부활 / 신 효과 = M12+ 백로그. 신 계약 부활 lore 만 = 코어 (모든 모험가 본질)
+- **사용자 직인** (2026-05-05):
+  - *"무기 카테고리는 없어도 돼. 시스템을 단순하게 하자"*
+  - *"인간메인으로 가자 우리도"*
+  - *"elyqara2d 설정은 캐릭터외에 하나도 채용하지 않아"*
+  - *"캐릭터는 생활기반 모험가고 특정 신과 계약해서 부활이라는 능력을 얻어"*
+  - *"신은 일단 초기단기에서는 한명만 하고 신 숙련도 (신앙심?이런거)도 캐릭터별로 만들자"*
+  - *"숙련도는 캐릭터별로 하고 신은 풀이 같아"*
+- **상세** → `memory/gameplay_concept_lock_20260505.md`
+- **남은 결정** (M12+ 진입 시): 신 5~7명 디자인 / 신앙심 효과 강화 방식 / 캐릭터 숙련도 페널티 / 신 부활 페널티 / 캐릭터별 종족 다양화
+
+## 2026-05-05 추가 — Kiyan 스킬 키트 코드 작성 + Karpathy 글로벌 가이드 적용
+
+### Kiyan 스킬 키트 코드 (검증 대기)
+- 옛 직인 *"그냥 캐릭터 컨셉만 박아줘"* 기반 코드 7 파일 작성 (Skills 5 + PlayerResources/BasicMelee 2)
+- 사용자 의도 = 설정 우선이라 작업 중단 → SO/prefab 통합 미완
+- 컴파일 OK. 다음 session = 검증 (SO 생성 + Kiyan.asset 갱신 + Player.prefab Passive) 또는 revert 결정
+- 상세 → `memory/kiyan_skill_kit_code_pending_20260505.md`
+
+### Karpathy 4 원칙 글로벌 적용
+- `~/.claude/CLAUDE.md` 새 생성 (Karpathy LLM coding pitfall 4 원칙: Think Before Coding / Simplicity First / Surgical Changes / Goal-Driven Execution)
+- 출처: `https://github.com/forrestchang/andrej-karpathy-skills`
+- 모든 프로젝트 자동 prepend. 우리 절대 원칙 10 + 정합 (보완)
+- 새 session 부터 효과
