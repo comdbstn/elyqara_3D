@@ -199,7 +199,7 @@ public class AttackProperty {
 
 - **단계 1~10 ✅** 통과 (상세 결정 + 사용자 직인 → `docs/decisions.md`)
 - **단계 13-1 ✅** 통과 — 1층 (Stage1+2+3) Room-and-Corridor 자동 생성 작동. 사용자 직인 *"기대했던 이상이야 넌 최고야"*. 상세 → `memory/phase13_dungeon_runtime_complete_20260504.md`
-- **현재 상태**: 단계 13-2 (외형 정체성 — visual replace) 진입 대기. 사용자 = Material 파일 별도 제공 예정 (*"머테리얼은 내가 파일구해와서 알려줄게"*). 다음 시작점 = a. M11 코어 검증 / b. 단계 13-2 캐릭터 외형 / c. 단계 13-1 fine-tune (미로 분기 / 시각 톤)
+- **현재 상태 (2026-05-20)**: 게임 구조 변경 (10층 / 5층 단위 테마). 던전 복잡도 개선 (방 15 + 통로 loop + 궤짝 자동 배치). 3D 에셋 워크플로우 락 = AI 메인 + Blender 보조 (`memory/asset_workflow_lock_20260520.md`). 첫 prop = WoodenChest 완성. **다음 = Kiyan 캐릭터 모델** (Meshy auto-rig 경로, step by step 가이드) → 그 다음 길드(Lobby). 상세 → `memory/phase13b_kickoff_20260520.md`
 - **단계 7 ✅** "적 잡으면 뭔가 떨어짐" — `Elyqara.Items` asmdef + 11 .cs + Phase7Setup. F키 픽업 + 4×6 그리드. 사용자 *"4명 분배 X 먼저 먹는 사람"* (자유 경쟁 = 협동 본질). 사용자 직인 *"좋아 모두 정상작동해"*. NGO auto-populate 학습
 - **단계 9 ✅** "한 명 죽어도 끝 아님" — Boss Room 패턴. `Elyqara.Game` asmdef + 5 .cs + 6 수정. IsDown NetworkVariable + E키 2초 hold 부활 + GameOver UI + BasicMeleeSkill Inventory.GetTotalEffect 적용. 사용자 직인 *"부활은 정상적으로 돼"* + *"응 좋아 정상적으로 표시되는것같아"*
 - **단계 10 (A+B+D 코드 완료)** "한 런 굴러감" — 씬 4개 분리 (Lobby/Stage1/Stage2/Stage3_Boss) + DDoL 패턴 (Player/vCam/GlobalManagers) + 보스 (BossMarker + WispBoss prefab + IsVictory NetworkVariable) + HUD HP/Stamina Slider + Victory UI. NGO 2.x 정공 검증 (WebSearch). `Phase10Setup.cs` Editor 3 메뉴
