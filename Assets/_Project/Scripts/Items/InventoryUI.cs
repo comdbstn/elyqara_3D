@@ -26,6 +26,8 @@ namespace Elyqara.Items
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
+            // 단계 10-A — 씬 전환 시 살아남도록 DDoL.
+            DontDestroyOnLoad(gameObject);
             if (panelRoot != null) panelRoot.SetActive(startVisible);
         }
 
@@ -38,6 +40,25 @@ namespace Elyqara.Items
                 _inventory.Slots.OnListChanged += OnSlotsChanged;
                 BuildSlotsIfNeeded();
                 Refresh();
+            }
+            else
+            {
+                ClearAllSlots();  // 단계 10 fix — Player Despawn 시 인벤 잔상 제거
+            }
+        }
+
+        private void ClearAllSlots()
+        {
+            if (_slotIcons == null) return;
+            for (int i = 0; i < _slotIcons.Length; i++)
+            {
+                if (_slotIcons[i] != null)
+                {
+                    _slotIcons[i].sprite = null;
+                    _slotIcons[i].enabled = false;
+                }
+                if (_slotCounts != null && i < _slotCounts.Length && _slotCounts[i] != null)
+                    _slotCounts[i].text = string.Empty;
             }
         }
 

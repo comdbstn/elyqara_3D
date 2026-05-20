@@ -226,7 +226,7 @@ namespace Elyqara.EditorTools
         }
 
         // ==== InventorySlot prefab (UI/) ====
-        private static GameObject EnsureInventorySlotPrefab()
+        public static GameObject EnsureInventorySlotPrefab()
         {
             var existing = AssetDatabase.LoadAssetAtPath<GameObject>(SlotPrefabPath);
             if (existing != null) return existing;
@@ -294,7 +294,7 @@ namespace Elyqara.EditorTools
         }
 
         // ==== 씬 [InventoryCanvas] ====
-        private static void EnsureInventoryCanvasInScene(GameObject slotPrefab)
+        public static void EnsureInventoryCanvasInScene(GameObject slotPrefab)
         {
             var existing = Object.FindFirstObjectByType<InventoryUI>();
             if (existing != null)

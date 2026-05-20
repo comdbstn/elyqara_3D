@@ -27,6 +27,12 @@ namespace Elyqara.Player
         [Tooltip("마우스 Y 반전 (true = 마우스 위 → 카메라 위)")]
         [SerializeField] private bool invertY = false;
 
+        [Header("Camera Collision (Souls-like)")]
+        [Tooltip("벽 회피 SphereCast radius — 안전 영역")]
+        [SerializeField] private float collisionRadius = 0.3f;
+        [Tooltip("벽 hit 후 살짝 안쪽 offset (vCam 이 hit point 까지 안 가게)")]
+        [SerializeField] private float collisionOffset = 0.1f;
+
         private PlayerInput _input;
         private float _pitch;
 
@@ -42,6 +48,10 @@ namespace Elyqara.Player
 
             // 부모 Player 의 transform 변환 영향 분리.
             vCam.transform.SetParent(null, worldPositionStays: true);
+
+            // 단계 10-A — Player 가 DDoL 이라 씬 전환 시 살아남음. vCam 도 같이 살아남아야
+            // CinemachineBrain 이 새 씬에서도 추적 (씬마다 Brain 따로 있어도 priority 보고 자동 추적).
+            DontDestroyOnLoad(vCam.gameObject);
 
             var priority = vCam.Priority;
             priority.Value = IsOwner ? activePriority : inactivePriority;
@@ -74,8 +84,24 @@ namespace Elyqara.Player
             Quaternion rot = Quaternion.Euler(_pitch, yaw, 0f);
             Vector3 pivot = transform.position + Vector3.up * verticalOffset;
             Vector3 worldOffset = rot * new Vector3(horizontalOffset, 0f, -distance);
+            Vector3 idealPos = pivot + worldOffset;
 
-            vCam.transform.position = pivot + worldOffset;
+            // 단계 13-1 fix — 벽 충돌 회피 SphereCast. pivot → idealPos 사이 벽 hit 시 카메라를 player 쪽으로 당김.
+            // pivot 이 player capsule 안이라 SphereCast self-overlap = capsule 자동 무시 (Unity 표준).
+            Vector3 dir = idealPos - pivot;
+            float dist = dir.magnitude;
+            if (dist > 0.01f)
+            {
+                Vector3 dirNorm = dir / dist;
+                if (Physics.SphereCast(pivot, collisionRadius, dirNorm, out RaycastHit hit, dist, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+                    vCam.transform.position = pivot + dirNorm * Mathf.Max(0.1f, hit.distance - collisionOffset);
+                else
+                    vCam.transform.position = idealPos;
+            }
+            else
+            {
+                vCam.transform.position = idealPos;
+            }
             vCam.transform.rotation = rot;
         }
     }

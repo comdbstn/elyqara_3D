@@ -3,7 +3,9 @@
     "rootNamespace": "Elyqara.Game",
     "references": [
         "Unity.Netcode.Runtime",
-        "Elyqara.Player"
+        "Elyqara.Player",
+        "Elyqara.Characters",
+        "Elyqara.Enemies"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

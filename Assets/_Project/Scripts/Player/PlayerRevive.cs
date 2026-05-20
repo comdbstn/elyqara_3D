@@ -95,8 +95,8 @@ namespace Elyqara.Player
             float sqr = (po.transform.position - transform.position).sqrMagnitude;
             if (sqr > reviveRange * reviveRange * 1.2f) return;  // 약간 여유
 
-            float maxHp = 100f;  // 기본값. PlayerResources 가 자체 max 검증.
-            targetRes.ReviveServer(maxHp * reviveHpPercent);
+            // 단계 10 fix — percent 전달. PlayerResources.ReviveServer 가 max * percent 계산.
+            targetRes.ReviveServer(reviveHpPercent);
         }
     }
 }
