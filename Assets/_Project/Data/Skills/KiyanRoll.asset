@@ -15,5 +15,6 @@ MonoBehaviour:
   cooldownSeconds: 0.8
   staminaCost: 25
   animTrigger: 4
-  dashImpulse: 12
-  invincibleSeconds: 0.3
+  dashSpeed: 22
+  dashDuration: 0.5
+  invincibleSeconds: 0.4

@@ -116,7 +116,8 @@ namespace Elyqara.Dungeon
 
                 var prop = Instantiate(prefab, builtRooms[i].transform);
                 prop.transform.localPosition = new Vector3(px, 0f, pz);
-                prop.transform.localRotation = Quaternion.Euler(0f, rng.Next(4) * 90f, 0f);
+                // prefab 본래 회전(예: 메시 교정각) 보존 + 랜덤 Y 스핀 합성 — 덮어쓰기 X
+                prop.transform.localRotation = Quaternion.Euler(0f, rng.Next(4) * 90f, 0f) * prop.transform.localRotation;
 
                 // 바닥에 앉히기 — Renderer bounds 의 바닥면을 방 바닥에 맞춤 (prefab pivot 무관).
                 var rend = prop.GetComponentInChildren<Renderer>();

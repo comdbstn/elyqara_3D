@@ -15,6 +15,7 @@ namespace Elyqara.Player
         public InputAction PickupAction => _pickupAction;
         public InputAction InventoryAction => _inventoryAction;
         public InputAction ReviveAction => _reviveAction;
+        public InputAction LockOnAction => _lockOnAction;
 
         private InputAction _moveAction;
         private InputAction _lookAction;
@@ -25,6 +26,7 @@ namespace Elyqara.Player
         private InputAction _pickupAction;
         private InputAction _inventoryAction;
         private InputAction _reviveAction;
+        private InputAction _lockOnAction;
 
         private bool _isEnabled;
 
@@ -66,6 +68,10 @@ namespace Elyqara.Player
             // 단계 9 — 부활 (E 키 hold)
             _reviveAction = new InputAction("Revive", InputActionType.Button, "<Keyboard>/e");
             _reviveAction.AddBinding("<Gamepad>/buttonEast");
+
+            // 조작 개편 — 락온 토글 (마우스 휠클릭 / 게임패드 R3)
+            _lockOnAction = new InputAction("LockOn", InputActionType.Button, "<Mouse>/middleButton");
+            _lockOnAction.AddBinding("<Gamepad>/rightStickPress");
         }
 
         public void EnableAll()
@@ -80,6 +86,7 @@ namespace Elyqara.Player
             _pickupAction.Enable();
             _inventoryAction.Enable();
             _reviveAction.Enable();
+            _lockOnAction.Enable();
             _isEnabled = true;
         }
 
@@ -95,6 +102,7 @@ namespace Elyqara.Player
             _pickupAction.Disable();
             _inventoryAction.Disable();
             _reviveAction.Disable();
+            _lockOnAction.Disable();
             _isEnabled = false;
         }
 
@@ -109,6 +117,7 @@ namespace Elyqara.Player
             _pickupAction?.Dispose();
             _inventoryAction?.Dispose();
             _reviveAction?.Dispose();
+            _lockOnAction?.Dispose();
         }
     }
 }

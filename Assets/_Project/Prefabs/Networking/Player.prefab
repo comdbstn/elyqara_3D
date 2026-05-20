@@ -30,6 +30,7 @@ GameObject:
   - component: {fileID: 5200922479129758369}
   - component: {fileID: 2408699809043484141}
   - component: {fileID: 7398023496663849737}
+  - component: {fileID: 1621562521115688359}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -264,7 +265,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   moveSpeed: 5
   runMultiplier: 1.8
-  lookSensitivity: 0.15
+  turnSpeed: 720
 --- !u!114 &5227780567408600354
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -325,14 +326,16 @@ MonoBehaviour:
   vCam: {fileID: 377185379926840978}
   activePriority: 100
   inactivePriority: 0
-  distance: 5.5
-  verticalOffset: 1.6
+  distance: 6
+  verticalOffset: 0.8
   horizontalOffset: 0
+  yawSensitivity: 0.15
   pitchSensitivity: 0.1
   minPitch: -10
   maxPitch: 50
-  startPitch: 10
+  startPitch: 15
   invertY: 0
+  lockYawSpeed: 360
   collisionRadius: 0.3
   collisionOffset: 0.1
 --- !u!114 &7245910775911093702
@@ -458,6 +461,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Elyqara.Player::Elyqara.Player.PlayerAnimator
   ShowTopMostFoldoutHeaderGroup: 1
   moveStateBlendSpeed: 6
+--- !u!114 &1621562521115688359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2893178756320769477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffaf92600af94462984a2229b6c730b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Elyqara.Player::Elyqara.Player.PlayerLockOn
+  ShowTopMostFoldoutHeaderGroup: 1
+  lockRange: 15
+  releaseRange: 18
+  minFacingDot: 0.1
 --- !u!1 &7238867433792234707
 GameObject:
   m_ObjectHideFlags: 0
