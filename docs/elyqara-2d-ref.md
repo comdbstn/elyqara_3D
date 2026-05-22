@@ -35,6 +35,7 @@
 | 그리드 인벤토리 패턴 | `Assets/_Project/Scripts/UI/Inventory/` (`GridDropZoneUI` 등) + Items 시스템 | 단계 7 차용 |
 | 그리드 던전 파이프라인 | `Assets/_Project/Scripts/Systems/Stage/GridMap/` (GridMapGenerator / GridDungeonBuilder / GridRoomManager) | 단계 6 = 차용 X (직접 맵핑으로 결정) |
 | 세이브 시스템 | (Elyqara 2D save 위치) | 백로그 |
+| 종이 애니 패널 UI | `UI/AnimatedPanelUI.cs` + `Resources/UI/MiddleUi/` (36프레임) | 2026-05-21 이식 — Z/X/C 3패널 (인벤/상태/스킬). `memory/paper_panel_ui_20260521.md` |
 
 ## 단계 7 진입 시 read-only 분석 위치
 
