@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using Elyqara.Skills;
@@ -38,10 +39,12 @@ namespace Elyqara.Enemies
         private float _knockbackUntil; // 이 시간까지 ApplyMovement 가 외부 velocity 보존 (knockback 임펄스 살림)
 
         private Rigidbody _rigidbody;
+        private EnemyAnimator _animator;
 
         private void Awake()
         {
             _rigidbody = GetComponent<Rigidbody>();
+            _animator = GetComponent<EnemyAnimator>();
         }
 
         public override void OnNetworkSpawn()
@@ -72,12 +75,16 @@ namespace Elyqara.Enemies
         {
             if (!IsServer || _state == AIState.Dead) return;
             _health.Value = Mathf.Max(0f, _health.Value - amount);
-            if (_health.Value <= 0f) Die();
+            if (_health.Value <= 0f) { Die(); return; }
+            if (_animator != null) _animator.PlayTriggerServer(EnemyAnim.Hit);
         }
 
         private void Die()
         {
             Transition(AIState.Dead);
+
+            if (_rigidbody != null) _rigidbody.linearVelocity = Vector3.zero;
+            if (_animator != null) _animator.PlayTriggerServer(EnemyAnim.Death);
 
             // 단계 7 — 드랍. Despawn 전에 호출 (transform.position 사용 위해).
             if (data != null && data.dropTable != null)
@@ -85,6 +92,22 @@ namespace Elyqara.Enemies
                 ItemSpawner.SpawnFromTable(data.dropTable, transform.position);
             }
 
+            // 사망 애니가 보이도록 deathAnimSeconds 만큼 지연 후 despawn. 0 = 즉시.
+            float delay = data != null ? data.deathAnimSeconds : 0f;
+            if (delay > 0f)
+                StartCoroutine(DespawnAfterDelay(delay));
+            else
+                DespawnNow();
+        }
+
+        private IEnumerator DespawnAfterDelay(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            DespawnNow();
+        }
+
+        private void DespawnNow()
+        {
             if (NetworkObject != null && NetworkObject.IsSpawned)
                 NetworkObject.Despawn(true);
         }
@@ -183,7 +206,10 @@ namespace Elyqara.Enemies
             _state = next;
             switch (next)
             {
-                case AIState.Anticipation: _phaseTimer = data.attackWindup; break;
+                case AIState.Anticipation:
+                    _phaseTimer = data.attackWindup;
+                    if (_animator != null) _animator.PlayTriggerServer(EnemyAnim.Attack);
+                    break;
                 case AIState.Active:
                     _phaseTimer = data.attackActive;
                     PerformHit();   // ★ Anticipation 끝 = swing 순간 = hitbox 한 번
@@ -227,6 +253,10 @@ namespace Elyqara.Enemies
             }
 
             _rigidbody.linearVelocity = vel;
+
+            // 이동 상태 애니 동기 — 수평 속도 유무로 판정 (0 정지 / 1 이동).
+            bool moving = (vel.x * vel.x + vel.z * vel.z) > 0.01f;
+            if (_animator != null) _animator.SetMoveStateServer(moving ? 1 : 0);
         }
 
         private void Face(Vector3 worldPos)

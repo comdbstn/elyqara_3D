@@ -3,6 +3,7 @@
     "rootNamespace": "Elyqara.Game",
     "references": [
         "Unity.Netcode.Runtime",
+        "Unity.InputSystem",
         "Elyqara.Player",
         "Elyqara.Characters",
         "Elyqara.Enemies"

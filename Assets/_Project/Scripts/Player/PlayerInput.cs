@@ -13,7 +13,6 @@ namespace Elyqara.Player
         public InputAction QSkillAction => _qSkillAction;
         public InputAction DodgeAction => _dodgeAction;
         public InputAction PickupAction => _pickupAction;
-        public InputAction InventoryAction => _inventoryAction;
         public InputAction ReviveAction => _reviveAction;
         public InputAction LockOnAction => _lockOnAction;
 
@@ -24,7 +23,6 @@ namespace Elyqara.Player
         private InputAction _qSkillAction;
         private InputAction _dodgeAction;
         private InputAction _pickupAction;
-        private InputAction _inventoryAction;
         private InputAction _reviveAction;
         private InputAction _lockOnAction;
 
@@ -58,12 +56,9 @@ namespace Elyqara.Player
             _dodgeAction = new InputAction("Dodge", InputActionType.Button, "<Keyboard>/space");
             _dodgeAction.AddBinding("<Gamepad>/buttonSouth");
 
-            // 단계 7 — 인벤 + 픽업 액션
+            // 단계 7 — 픽업 액션
             _pickupAction = new InputAction("Pickup", InputActionType.Button, "<Keyboard>/f");
             _pickupAction.AddBinding("<Gamepad>/buttonWest");
-
-            _inventoryAction = new InputAction("Inventory", InputActionType.Button, "<Keyboard>/i");
-            _inventoryAction.AddBinding("<Gamepad>/select");
 
             // 단계 9 — 부활 (E 키 hold)
             _reviveAction = new InputAction("Revive", InputActionType.Button, "<Keyboard>/e");
@@ -84,7 +79,6 @@ namespace Elyqara.Player
             _qSkillAction.Enable();
             _dodgeAction.Enable();
             _pickupAction.Enable();
-            _inventoryAction.Enable();
             _reviveAction.Enable();
             _lockOnAction.Enable();
             _isEnabled = true;
@@ -100,7 +94,6 @@ namespace Elyqara.Player
             _qSkillAction.Disable();
             _dodgeAction.Disable();
             _pickupAction.Disable();
-            _inventoryAction.Disable();
             _reviveAction.Disable();
             _lockOnAction.Disable();
             _isEnabled = false;
@@ -115,7 +108,6 @@ namespace Elyqara.Player
             _qSkillAction?.Dispose();
             _dodgeAction?.Dispose();
             _pickupAction?.Dispose();
-            _inventoryAction?.Dispose();
             _reviveAction?.Dispose();
             _lockOnAction?.Dispose();
         }

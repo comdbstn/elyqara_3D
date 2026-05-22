@@ -45,5 +45,9 @@ namespace Elyqara.Enemies
         [Range(0f, 180f)]
         [Tooltip("콘 반각 (도). forward 와 target 방향 각도가 이 값 이하면 hit.")]
         public float hitboxHalfAngleDeg = 60f;
+
+        [Header("Death")]
+        [Tooltip("사망 애니 재생 시간 (초). 이 시간 후 despawn. 0 = 즉시 사라짐. 모델·사망 애니 연결 후 클립 길이에 맞춰 설정.")]
+        public float deathAnimSeconds = 0f;
     }
 }
